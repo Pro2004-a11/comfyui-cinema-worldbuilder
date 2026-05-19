@@ -132,3 +132,11 @@ def snap_frames(runtime_seconds, fps):
     frames = max(MIN_FRAMES, min(8 * k + 1, MAX_FRAMES))
     runtime_actual = frames / fps
     return frames, runtime_actual
+
+
+def parse_mode_label(label):
+    """Map a MODE_CHOICES display label to its M1..M5 key."""
+    try:
+        return MODE_LABEL_TO_KEY[label]
+    except KeyError:
+        raise ValueError(f"unknown mode label: {label}") from None

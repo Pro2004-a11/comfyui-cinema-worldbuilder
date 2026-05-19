@@ -1,3 +1,5 @@
+import pytest
+
 import cinema_grammar as cg
 
 
@@ -38,3 +40,13 @@ def test_snap_frames_is_always_8k_plus_1():
     for sec in (0.5, 1.0, 2.5, 3.0, 4.0):
         frames, _ = cg.snap_frames(sec, 24)
         assert (frames - 1) % 8 == 0
+
+
+def test_parse_mode_label_valid():
+    assert cg.parse_mode_label("M3 - Action") == "M3"
+    assert cg.parse_mode_label("M1 - Narrative") == "M1"
+
+
+def test_parse_mode_label_bad():
+    with pytest.raises(ValueError, match="unknown mode label"):
+        cg.parse_mode_label("M9 - Nonsense")
