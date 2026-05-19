@@ -73,3 +73,31 @@ class CinemaAudioLine(io.ComfyNode):
     @classmethod
     def execute(cls, sounds, spoken_dialogue):
         return io.NodeOutput(cg.build_audio_line(sounds, spoken_dialogue))
+
+
+class CinemaPromptComposer(io.ComfyNode):
+    @classmethod
+    def define_schema(cls):
+        return io.Schema(
+            node_id="CinemaWorldbuilder_PromptComposer",
+            display_name="Cinema Prompt Composer",
+            category="Cinema Worldbuilder",
+            description="Assembles the single-paragraph Seedance-style prompt.",
+            inputs=[
+                io.String.Input("style_and_mood", multiline=True, default=""),
+                io.String.Input("dynamic_description", multiline=True, default=""),
+                io.String.Input("static_description", multiline=True, default=""),
+                io.String.Input("camera_block", force_input=True),
+                io.String.Input("audio_line", force_input=True, optional=True),
+            ],
+            outputs=[
+                io.String.Output("prompt"),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, style_and_mood, dynamic_description, static_description,
+                camera_block, audio_line=""):
+        return io.NodeOutput(cg.compose_prompt(
+            style_and_mood, dynamic_description, static_description,
+            camera_block, audio_line or ""))
