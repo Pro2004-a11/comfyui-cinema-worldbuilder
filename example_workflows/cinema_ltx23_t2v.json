@@ -1,6 +1,5 @@
 {
   "_comment": "Cinema Worldbuilder example: TEXT-TO-VIDEO on LTX 2.3 22B distilled Q2_K GGUF. The 3 CinemaWorldbuilder_* nodes compose the positive prompt and drive frame_count for both video and audio latents. Edit the Cinema node inputs in the UI. Full-denoise t2v: LTXVScheduler sigmas feed SamplerCustom directly (no SplitSigmasDenoise). Audio is decoded via LTXVAudioVAEDecode and muxed into VHS_VideoCombine. Requires: ltx-2.3-22b-distilled-1.1-Q2_K.gguf, gemma-3-12b-it-IQ4_XS.gguf, ltx23_embeddings_connector.safetensors, ltx23_video_vae.safetensors, ltx23_audio_vae.safetensors.",
-
   "cinema_camera": {
     "class_type": "CinemaWorldbuilder_CameraBlock",
     "inputs": {
@@ -25,96 +24,232 @@
       "style_and_mood": "cinematic, moody, photoreal, shallow depth of field",
       "dynamic_description": "a lone figure walks slowly toward camera through a rain-slicked alley",
       "static_description": "narrow alley, neon signage reflecting on puddles, brick walls",
-      "camera_block": ["cinema_camera", 0],
-      "audio_line": ["cinema_audio", 0]
+      "camera_block": [
+        "cinema_camera",
+        0
+      ],
+      "audio_line": [
+        "cinema_audio",
+        0
+      ]
     }
   },
-
   "video_vae": {
     "class_type": "VAELoaderKJ",
-    "inputs": {"vae_name": "ltx23_video_vae.safetensors", "device": "main_device", "weight_dtype": "bf16"}
+    "inputs": {
+      "vae_name": "ltx23_video_vae.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    }
   },
   "audio_vae": {
     "class_type": "VAELoaderKJ",
-    "inputs": {"vae_name": "ltx23_audio_vae.safetensors", "device": "main_device", "weight_dtype": "bf16"}
+    "inputs": {
+      "vae_name": "ltx23_audio_vae.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    }
   },
-
   "empty_video_latent": {
     "class_type": "EmptyLTXVLatentVideo",
-    "inputs": {"width": 768, "height": 512, "length": ["cinema_camera", 1], "batch_size": 1}
+    "inputs": {
+      "width": 768,
+      "height": 512,
+      "length": [
+        "cinema_camera",
+        1
+      ],
+      "batch_size": 1
+    }
   },
   "empty_audio_latent": {
     "class_type": "LTXVEmptyLatentAudio",
-    "inputs": {"frames_number": ["cinema_camera", 1], "frame_rate": 24, "batch_size": 1, "audio_vae": ["audio_vae", 0]}
+    "inputs": {
+      "frames_number": [
+        "cinema_camera",
+        1
+      ],
+      "frame_rate": 24,
+      "batch_size": 1,
+      "audio_vae": [
+        "audio_vae",
+        0
+      ]
+    }
   },
   "concat_av": {
     "class_type": "LTXVConcatAVLatent",
-    "inputs": {"video_latent": ["empty_video_latent", 0], "audio_latent": ["empty_audio_latent", 0]}
+    "inputs": {
+      "video_latent": [
+        "empty_video_latent",
+        0
+      ],
+      "audio_latent": [
+        "empty_audio_latent",
+        0
+      ]
+    }
   },
-
   "unet": {
     "class_type": "UnetLoaderGGUF",
-    "inputs": {"unet_name": "ltx-2.3-22b-distilled-1.1-Q2_K.gguf"}
+    "inputs": {
+      "unet_name": "ltx-2.3-22b-distilled-1.1-Q2_K.gguf"
+    }
   },
   "model": {
     "class_type": "LTXVChunkFeedForward",
-    "inputs": {"model": ["unet", 0], "chunks": 2, "dim_threshold": 4096}
+    "inputs": {
+      "model": [
+        "unet",
+        0
+      ],
+      "chunks": 2,
+      "dim_threshold": 4096
+    }
   },
   "clip": {
     "class_type": "DualCLIPLoaderGGUF",
-    "inputs": {"clip_name1": "gemma-3-12b-it-IQ4_XS.gguf", "clip_name2": "ltx23_embeddings_connector.safetensors", "type": "ltxv"}
+    "inputs": {
+      "clip_name1": "gemma-3-12b-it-IQ4_XS.gguf",
+      "clip_name2": "ltx23_embeddings_connector.safetensors",
+      "type": "ltxv"
+    }
   },
   "positive": {
     "class_type": "CLIPTextEncode",
-    "inputs": {"clip": ["clip", 0], "text": ["cinema_prompt", 0]}
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": [
+        "cinema_prompt",
+        0
+      ]
+    }
   },
   "negative": {
     "class_type": "CLIPTextEncode",
-    "inputs": {"clip": ["clip", 0], "text": "blurry, distorted, jittery, warped, low quality"}
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "blurry, distorted, jittery, warped, low quality"
+    }
   },
   "conditioning": {
     "class_type": "LTXVConditioning",
-    "inputs": {"positive": ["positive", 0], "negative": ["negative", 0], "frame_rate": 24.0}
+    "inputs": {
+      "positive": [
+        "positive",
+        0
+      ],
+      "negative": [
+        "negative",
+        0
+      ],
+      "frame_rate": 24.0
+    }
   },
   "scheduler": {
     "class_type": "LTXVScheduler",
-    "inputs": {"steps": 8, "max_shift": 2.05, "base_shift": 0.95, "stretch": true, "terminal": 0.1}
+    "inputs": {
+      "steps": 8,
+      "max_shift": 2.05,
+      "base_shift": 0.95,
+      "stretch": true,
+      "terminal": 0.0
+    }
   },
   "sampler_select": {
     "class_type": "KSamplerSelect",
-    "inputs": {"sampler_name": "euler_ancestral"}
+    "inputs": {
+      "sampler_name": "euler_ancestral"
+    }
   },
   "sampler": {
     "class_type": "SamplerCustom",
     "inputs": {
-      "model": ["model", 0],
+      "model": [
+        "model",
+        0
+      ],
       "add_noise": true,
       "noise_seed": 0,
       "cfg": 1.0,
-      "positive": ["conditioning", 0],
-      "negative": ["conditioning", 1],
-      "sampler": ["sampler_select", 0],
-      "sigmas": ["scheduler", 0],
-      "latent_image": ["concat_av", 0]
+      "positive": [
+        "conditioning",
+        0
+      ],
+      "negative": [
+        "conditioning",
+        1
+      ],
+      "sampler": [
+        "sampler_select",
+        0
+      ],
+      "sigmas": [
+        "scheduler",
+        0
+      ],
+      "latent_image": [
+        "concat_av",
+        0
+      ]
     }
   },
   "separate_av": {
     "class_type": "LTXVSeparateAVLatent",
-    "inputs": {"av_latent": ["sampler", 0]}
+    "inputs": {
+      "av_latent": [
+        "sampler",
+        0
+      ]
+    }
   },
   "decode_video": {
     "class_type": "VAEDecodeTiled",
-    "inputs": {"samples": ["separate_av", 0], "vae": ["video_vae", 0], "tile_size": 512, "overlap": 64, "temporal_size": 64, "temporal_overlap": 8}
+    "inputs": {
+      "samples": [
+        "separate_av",
+        0
+      ],
+      "vae": [
+        "video_vae",
+        0
+      ],
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8
+    }
   },
   "decode_audio": {
     "class_type": "LTXVAudioVAEDecode",
-    "inputs": {"samples": ["separate_av", 1], "audio_vae": ["audio_vae", 0]}
+    "inputs": {
+      "samples": [
+        "separate_av",
+        1
+      ],
+      "audio_vae": [
+        "audio_vae",
+        0
+      ]
+    }
   },
   "combine": {
     "class_type": "VHS_VideoCombine",
     "inputs": {
-      "images": ["decode_video", 0],
-      "audio": ["decode_audio", 0],
+      "images": [
+        "decode_video",
+        0
+      ],
+      "audio": [
+        "decode_audio",
+        0
+      ],
       "frame_rate": 24,
       "loop_count": 0,
       "filename_prefix": "cinema_t2v",
