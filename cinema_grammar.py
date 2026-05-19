@@ -118,3 +118,17 @@ MODES = {
 
 MODE_CHOICES = [MODES[k]["label"] for k in ("M1", "M2", "M3", "M4", "M5")]
 MODE_LABEL_TO_KEY = {MODES[k]["label"]: k for k in MODES}
+
+
+def snap_frames(runtime_seconds, fps):
+    """Snap a requested runtime to a valid LTX 2.3 latent length (8k+1).
+
+    EmptyLTXVLatentVideo.length has the live constraint min=1, step=8.
+    Rounds to the NEAREST valid value, so runtime_actual may differ from the
+    request by up to ~0.33 s at 24 fps. Returns (frame_count, runtime_actual).
+    """
+    raw = runtime_seconds * fps
+    k = round((raw - 1) / 8)
+    frames = max(MIN_FRAMES, min(8 * k + 1, MAX_FRAMES))
+    runtime_actual = frames / fps
+    return frames, runtime_actual
