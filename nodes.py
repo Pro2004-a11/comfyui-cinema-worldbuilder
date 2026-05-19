@@ -41,3 +41,35 @@ class CinemaCameraBlock(io.ComfyNode):
         camera_block = cg.build_camera_block(
             key, lens_mm, runtime_actual, palette or "", stage_lighting or "")
         return io.NodeOutput(camera_block, frame_count, fps_int, runtime_actual)
+
+
+class CinemaAudioLine(io.ComfyNode):
+    @classmethod
+    def define_schema(cls):
+        return io.Schema(
+            node_id="CinemaWorldbuilder_AudioLine",
+            display_name="Cinema Audio Line",
+            category="Cinema Worldbuilder",
+            description="Diegetic-only audio line. Rejects music/score/lyrics.",
+            inputs=[
+                io.String.Input("sounds", multiline=True, default=""),
+                io.Boolean.Input("spoken_dialogue", default=False),
+            ],
+            outputs=[
+                io.String.Output("audio_line"),
+            ],
+        )
+
+    @classmethod
+    def validate_inputs(cls, sounds, spoken_dialogue):
+        """Pre-execution guard: fail the graph cleanly if music is referenced."""
+        haystack = sounds.lower()
+        for banned in cg.AUDIO_BANNED:
+            if banned in haystack:
+                return (f"Cinema Audio Line: banned token '{banned}' - the audio "
+                        f"line is diegetic only, no music/score/lyrics.")
+        return True
+
+    @classmethod
+    def execute(cls, sounds, spoken_dialogue):
+        return io.NodeOutput(cg.build_audio_line(sounds, spoken_dialogue))
