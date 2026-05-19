@@ -1,7 +1,7 @@
 """ComfyUI V3 node adapters for the Cinema Worldbuilder grammar."""
 from comfy_api.latest import io
 
-import cinema_grammar as cg
+from . import cinema_grammar as cg
 
 
 class CinemaCameraBlock(io.ComfyNode):

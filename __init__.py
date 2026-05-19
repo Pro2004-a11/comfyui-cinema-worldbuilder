@@ -2,7 +2,7 @@
 from typing_extensions import override
 from comfy_api.latest import ComfyExtension, io
 
-from nodes import CinemaCameraBlock, CinemaAudioLine, CinemaPromptComposer
+from .nodes import CinemaCameraBlock, CinemaAudioLine, CinemaPromptComposer
 
 
 class CinemaWorldbuilderExtension(ComfyExtension):
