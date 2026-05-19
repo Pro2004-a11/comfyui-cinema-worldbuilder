@@ -194,3 +194,30 @@ def build_audio_line(sounds, spoken_dialogue):
         else "no dialogue except what is physically spoken in frame"
     )
     return AUDIO_TEMPLATE.format(sounds=joined, dialogue_clause=dialogue_clause)
+
+
+def _collapse(text):
+    """Collapse whitespace/newlines in a free-text field to single spaces."""
+    return " ".join(text.split())
+
+
+def compose_prompt(style_and_mood, dynamic_description, static_description,
+                   camera_block, audio_line=""):
+    """Assemble the single continuous-paragraph prompt. Blank labelled prose
+    sections are dropped entirely; a blank audio_line is omitted."""
+    parts = []
+    for label, value in (
+        ("Style & Mood", style_and_mood),
+        ("Dynamic Description", dynamic_description),
+        ("Static Description", static_description),
+    ):
+        value = _collapse(value)
+        if value:
+            parts.append(f"{label}: {value}")
+    camera_block = _collapse(camera_block)
+    if camera_block:
+        parts.append(camera_block)
+    audio_line = _collapse(audio_line)
+    if audio_line:
+        parts.append(audio_line)
+    return " ".join(parts)

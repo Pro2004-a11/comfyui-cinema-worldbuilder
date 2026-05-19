@@ -103,3 +103,28 @@ def test_build_audio_line_rejects_music():
 def test_build_audio_line_rejects_padded_banned_token():
     with pytest.raises(ValueError, match="music"):
         cg.build_audio_line("footsteps\n   music   \nwind", False)
+
+
+def test_compose_prompt_full():
+    out = cg.compose_prompt(
+        "tense, observational",
+        "she steps off the curb",
+        "rose-pink haired woman in a white tank",
+        "Shot on ARRI Alexa 35 ...",
+        "Audio: diegetic only - rain, no music, no dialogue ...",
+    )
+    assert out.index("Style & Mood:") < out.index("Dynamic Description:")
+    assert out.index("Dynamic Description:") < out.index("Static Description:")
+    assert "\n" not in out
+    assert "**" not in out
+
+
+def test_compose_prompt_drops_blank_label():
+    out = cg.compose_prompt("", "action here", "static here", "CAM", "")
+    assert "Style & Mood:" not in out
+    assert "Dynamic Description: action here" in out
+
+
+def test_compose_prompt_omits_blank_audio():
+    out = cg.compose_prompt("mood", "dyn", "stat", "CAM", "")
+    assert out.rstrip().endswith("CAM")
