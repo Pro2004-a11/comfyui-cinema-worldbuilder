@@ -172,3 +172,25 @@ def build_camera_block(mode_key, lens_mm, runtime_actual, palette, stage_lightin
         palette=palette,
         stage_lighting=stage_lighting,
     )
+
+
+def build_audio_line(sounds, spoken_dialogue):
+    """Assemble the diegetic audio line. Raises ValueError if a banned (music)
+    token appears in any cleaned sound entry."""
+    items = [s.strip() for part in sounds.splitlines()
+             for s in part.split(",")]
+    items = [s for s in items if s]
+    joined = ", ".join(items)
+    haystack = joined.lower()
+    for banned in AUDIO_BANNED:
+        if banned in haystack:
+            raise ValueError(
+                f"banned audio token '{banned}' - the audio line is diegetic "
+                f"only, no music/score/lyrics"
+            )
+    dialogue_clause = (
+        "dialogue limited to what is physically spoken in frame"
+        if spoken_dialogue
+        else "no dialogue except what is physically spoken in frame"
+    )
+    return AUDIO_TEMPLATE.format(sounds=joined, dialogue_clause=dialogue_clause)

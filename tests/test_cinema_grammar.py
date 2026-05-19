@@ -79,3 +79,27 @@ def test_build_camera_block_m4_default_stage(capsys):
 def test_build_camera_block_bad_mode():
     with pytest.raises(ValueError, match="unknown mode"):
         cg.build_camera_block("M9", "55", 3.0, "", "")
+
+
+def test_build_audio_line_clean():
+    line = cg.build_audio_line("boots on gravel\nrain hiss, distant thunder", False)
+    assert line.startswith("Audio: diegetic only - ")
+    assert "boots on gravel" in line
+    assert "rain hiss" in line
+    assert "no music" in line
+    assert "no dialogue except what is physically spoken in frame" in line
+
+
+def test_build_audio_line_spoken_dialogue():
+    line = cg.build_audio_line("footsteps", True)
+    assert "dialogue limited to what is physically spoken in frame" in line
+
+
+def test_build_audio_line_rejects_music():
+    with pytest.raises(ValueError, match="orchestral"):
+        cg.build_audio_line("footsteps, orchestral swell, wind", False)
+
+
+def test_build_audio_line_rejects_padded_banned_token():
+    with pytest.raises(ValueError, match="music"):
+        cg.build_audio_line("footsteps\n   music   \nwind", False)
