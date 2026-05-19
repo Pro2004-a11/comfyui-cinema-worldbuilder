@@ -1,5 +1,5 @@
 {
-  "_comment": "Cinema Worldbuilder example: TEXT-TO-VIDEO on LTX 2.3 22B distilled Q2_K GGUF. The 3 CinemaWorldbuilder_* nodes compose the positive prompt and drive frame_count for both video and audio latents. Edit the Cinema node inputs in the UI. Full-denoise t2v: LTXVScheduler sigmas feed SamplerCustom directly (no SplitSigmasDenoise). Audio is decoded via LTXVAudioVAEDecode and muxed into VHS_VideoCombine. Requires: ltx-2.3-22b-distilled-1.1-Q2_K.gguf, gemma-3-12b-it-IQ4_XS.gguf, ltx23_embeddings_connector.safetensors, ltx23_video_vae.safetensors, ltx23_audio_vae.safetensors.",
+  "_comment": "Cinema Worldbuilder example: TEXT-TO-VIDEO on LTX 2.3 22B distilled Q2_K GGUF. Rebuilt from the official ComfyUI 'Text to Video (LTX 2 Distilled)' template (comfyui_workflow_templates_media_video/video_ltx2_t2v_distilled.json) as the structural source of truth. SAMPLING FIX: the distilled model requires explicit ManualSigmas (NOT LTXVScheduler) -> CFGGuider(cfg=1) + KSamplerSelect(euler_ancestral) + RandomNoise -> SamplerCustomAdvanced. Base-pass sigmas reproduced verbatim from the template node 176: '1., 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0'. SECOND-PASS REFINE OMITTED: the official template's pass 2 uses LTXVLatentUpsampler + LatentUpscaleModelLoader, but no spatial-upscaler model is installed on this machine (LatentUpscaleModelLoader combo is empty, models/latent_upscale_models/ is empty). Base pass alone carries the architecture fix. MODEL STACK SWAP: official template loads via CheckpointLoaderSimple + fp8 safetensors (not installed here); swapped to the verified GGUF stack from C:/_POC/ltx-geo-bias/workflow/ltx23_warp_v2v.json -> UnetLoaderGGUF + LTXVChunkFeedForward (chunks=2, dim_threshold=4096, for 12GB VRAM) + DualCLIPLoaderGGUF + VAELoaderKJ x2. The official template's distilled LoraLoaderModelOnly is dropped (the GGUF is already the distilled model). RESOLUTION: template base is 960x544x121; capped to 768x512 to fit 12GB VRAM (length is driven by the Cinema CameraBlock frame_count). Requires: ltx-2.3-22b-distilled-1.1-Q2_K.gguf, gemma-3-12b-it-IQ4_XS.gguf, ltx23_embeddings_connector.safetensors, ltx23_video_vae.safetensors, ltx23_audio_vae.safetensors.",
   "cinema_camera": {
     "class_type": "CinemaWorldbuilder_CameraBlock",
     "inputs": {
@@ -24,14 +24,8 @@
       "style_and_mood": "cinematic, moody, photoreal, shallow depth of field",
       "dynamic_description": "a lone figure walks slowly toward camera through a rain-slicked alley",
       "static_description": "narrow alley, neon signage reflecting on puddles, brick walls",
-      "camera_block": [
-        "cinema_camera",
-        0
-      ],
-      "audio_line": [
-        "cinema_audio",
-        0
-      ]
+      "camera_block": ["cinema_camera", 0],
+      "audio_line": ["cinema_audio", 0]
     }
   },
   "video_vae": {
@@ -55,39 +49,24 @@
     "inputs": {
       "width": 768,
       "height": 512,
-      "length": [
-        "cinema_camera",
-        1
-      ],
+      "length": ["cinema_camera", 1],
       "batch_size": 1
     }
   },
   "empty_audio_latent": {
     "class_type": "LTXVEmptyLatentAudio",
     "inputs": {
-      "frames_number": [
-        "cinema_camera",
-        1
-      ],
+      "frames_number": ["cinema_camera", 1],
       "frame_rate": 24,
       "batch_size": 1,
-      "audio_vae": [
-        "audio_vae",
-        0
-      ]
+      "audio_vae": ["audio_vae", 0]
     }
   },
   "concat_av": {
     "class_type": "LTXVConcatAVLatent",
     "inputs": {
-      "video_latent": [
-        "empty_video_latent",
-        0
-      ],
-      "audio_latent": [
-        "empty_audio_latent",
-        0
-      ]
+      "video_latent": ["empty_video_latent", 0],
+      "audio_latent": ["empty_audio_latent", 0]
     }
   },
   "unet": {
@@ -99,10 +78,7 @@
   "model": {
     "class_type": "LTXVChunkFeedForward",
     "inputs": {
-      "model": [
-        "unet",
-        0
-      ],
+      "model": ["unet", 0],
       "chunks": 2,
       "dim_threshold": 4096
     }
@@ -118,48 +94,29 @@
   "positive": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "clip": [
-        "clip",
-        0
-      ],
-      "text": [
-        "cinema_prompt",
-        0
-      ]
+      "clip": ["clip", 0],
+      "text": ["cinema_prompt", 0]
     }
   },
   "negative": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "clip": [
-        "clip",
-        0
-      ],
+      "clip": ["clip", 0],
       "text": "blurry, distorted, jittery, warped, low quality"
     }
   },
   "conditioning": {
     "class_type": "LTXVConditioning",
     "inputs": {
-      "positive": [
-        "positive",
-        0
-      ],
-      "negative": [
-        "negative",
-        0
-      ],
+      "positive": ["positive", 0],
+      "negative": ["negative", 0],
       "frame_rate": 24.0
     }
   },
-  "scheduler": {
-    "class_type": "LTXVScheduler",
+  "sigmas": {
+    "class_type": "ManualSigmas",
     "inputs": {
-      "steps": 8,
-      "max_shift": 2.05,
-      "base_shift": 0.95,
-      "stretch": true,
-      "terminal": 0.0
+      "sigmas": "1., 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
     }
   },
   "sampler_select": {
@@ -168,58 +125,42 @@
       "sampler_name": "euler_ancestral"
     }
   },
-  "sampler": {
-    "class_type": "SamplerCustom",
+  "noise": {
+    "class_type": "RandomNoise",
     "inputs": {
-      "model": [
-        "model",
-        0
-      ],
-      "add_noise": true,
-      "noise_seed": 0,
-      "cfg": 1.0,
-      "positive": [
-        "conditioning",
-        0
-      ],
-      "negative": [
-        "conditioning",
-        1
-      ],
-      "sampler": [
-        "sampler_select",
-        0
-      ],
-      "sigmas": [
-        "scheduler",
-        0
-      ],
-      "latent_image": [
-        "concat_av",
-        0
-      ]
+      "noise_seed": 420
+    }
+  },
+  "guider": {
+    "class_type": "CFGGuider",
+    "inputs": {
+      "model": ["model", 0],
+      "positive": ["conditioning", 0],
+      "negative": ["conditioning", 1],
+      "cfg": 1.0
+    }
+  },
+  "sampler": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": ["noise", 0],
+      "guider": ["guider", 0],
+      "sampler": ["sampler_select", 0],
+      "sigmas": ["sigmas", 0],
+      "latent_image": ["concat_av", 0]
     }
   },
   "separate_av": {
     "class_type": "LTXVSeparateAVLatent",
     "inputs": {
-      "av_latent": [
-        "sampler",
-        0
-      ]
+      "av_latent": ["sampler", 1]
     }
   },
   "decode_video": {
     "class_type": "VAEDecodeTiled",
     "inputs": {
-      "samples": [
-        "separate_av",
-        0
-      ],
-      "vae": [
-        "video_vae",
-        0
-      ],
+      "samples": ["separate_av", 0],
+      "vae": ["video_vae", 0],
       "tile_size": 512,
       "overlap": 64,
       "temporal_size": 64,
@@ -229,27 +170,15 @@
   "decode_audio": {
     "class_type": "LTXVAudioVAEDecode",
     "inputs": {
-      "samples": [
-        "separate_av",
-        1
-      ],
-      "audio_vae": [
-        "audio_vae",
-        0
-      ]
+      "samples": ["separate_av", 1],
+      "audio_vae": ["audio_vae", 0]
     }
   },
   "combine": {
     "class_type": "VHS_VideoCombine",
     "inputs": {
-      "images": [
-        "decode_video",
-        0
-      ],
-      "audio": [
-        "decode_audio",
-        0
-      ],
+      "images": ["decode_video", 0],
+      "audio": ["decode_audio", 0],
       "frame_rate": 24,
       "loop_count": 0,
       "filename_prefix": "cinema_t2v",
