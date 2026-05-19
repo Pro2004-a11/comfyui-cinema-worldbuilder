@@ -4,7 +4,7 @@
   "cinema_camera": {
     "class_type": "CinemaWorldbuilder_CameraBlock",
     "inputs": {
-      "mode": "M1 — Narrative",
+      "mode": "M1 - Narrative",
       "lens_mm": "55",
       "runtime_seconds": 4.0,
       "fps": "24",
