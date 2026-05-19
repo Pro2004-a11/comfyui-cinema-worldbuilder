@@ -140,3 +140,35 @@ def parse_mode_label(label):
         return MODE_LABEL_TO_KEY[label]
     except KeyError:
         raise ValueError(f"unknown mode label: {label}") from None
+
+
+def build_camera_block(mode_key, lens_mm, runtime_actual, palette, stage_lighting):
+    """Fill the chosen mode's canonical camera block.
+
+    Required fields per mode are listed in MODES[key]["requires"]. A blank
+    required field falls back to a named default and prints a [WARN] line so the
+    degraded behavior is visible. Placeholders not present in a block are ignored
+    by str.format.
+    """
+    mode = MODES.get(mode_key)
+    if mode is None:
+        raise ValueError(f"unknown mode: {mode_key}")
+
+    palette = palette.strip()
+    stage_lighting = stage_lighting.strip()
+
+    if "palette" in mode["requires"] and not palette:
+        print(f"[WARN] cinema-worldbuilder: mode {mode_key} has no palette; "
+              f"using default")
+        palette = PALETTE_DEFAULT
+    if "stage_lighting" in mode["requires"] and not stage_lighting:
+        print(f"[WARN] cinema-worldbuilder: mode {mode_key} has no stage_lighting; "
+              f"using default")
+        stage_lighting = STAGE_LIGHTING_DEFAULT
+
+    return mode["camera_block"].format(
+        lens=lens_mm,
+        runtime=f"{runtime_actual:.1f}",
+        palette=palette,
+        stage_lighting=stage_lighting,
+    )

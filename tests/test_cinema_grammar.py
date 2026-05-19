@@ -50,3 +50,32 @@ def test_parse_mode_label_valid():
 def test_parse_mode_label_bad():
     with pytest.raises(ValueError, match="unknown mode label"):
         cg.parse_mode_label("M9 - Nonsense")
+
+
+def test_build_camera_block_m1():
+    block = cg.build_camera_block("M1", "55", 4.04, "", "")
+    assert "55mm" in block
+    assert "roughly 4.0 seconds" in block
+    assert "ARRI Alexa 35" in block
+
+
+def test_build_camera_block_m3_uses_palette():
+    block = cg.build_camera_block("M3", "40", 3.0, "stormy desaturated palette", "")
+    assert "stormy desaturated palette" in block
+
+
+def test_build_camera_block_m3_default_palette(capsys):
+    block = cg.build_camera_block("M3", "40", 3.0, "", "")
+    assert cg.PALETTE_DEFAULT in block
+    assert "[WARN]" in capsys.readouterr().out
+
+
+def test_build_camera_block_m4_default_stage(capsys):
+    block = cg.build_camera_block("M4", "55", 3.0, "", "")
+    assert cg.STAGE_LIGHTING_DEFAULT in block
+    assert "[WARN]" in capsys.readouterr().out
+
+
+def test_build_camera_block_bad_mode():
+    with pytest.raises(ValueError, match="unknown mode"):
+        cg.build_camera_block("M9", "55", 3.0, "", "")
