@@ -1,0 +1,13 @@
+[project]
+name = "comfyui-cinema-worldbuilder"
+version = "0.1.0"
+description = "Cinema Worldbuilder grammar as ComfyUI nodes for LTX 2.3 video prompting"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+
+[project.urls]
+Repository = "https://github.com/yosir/comfyui-cinema-worldbuilder"
+
+[tool.comfy]
+PublisherId = "yosir"
+DisplayName = "Cinema Worldbuilder"
