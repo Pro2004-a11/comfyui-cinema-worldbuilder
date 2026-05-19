@@ -1,0 +1,120 @@
+"""Cinema Worldbuilder grammar — pure data and pure functions. No ComfyUI import."""
+
+MAX_FRAMES = 97   # 8*12+1 — LTX 2.3 single-latent ceiling on a 12 GB RTX 4070 Ti
+MIN_FRAMES = 9    # 8*1+1
+
+FPS_CHOICES = ["24", "25", "30"]
+
+LENS_CHOICES = ["32", "35", "40", "50", "55", "75", "85", "100"]
+
+PALETTE_DEFAULT = "neutral desaturated grade (default - no palette specified)"
+STAGE_LIGHTING_DEFAULT = "neutral white stage wash (default - no stage lighting specified)"
+
+AUDIO_BANNED = [
+    "music", "song", "lyric", "soundtrack", "score", "melody",
+    "beat drop", "orchestral", "synth pad", "vocals",
+]
+AUDIO_TEMPLATE = "Audio: diegetic only - {sounds}, no music, {dialogue_clause}."
+
+# Canonical camera blocks transcribed verbatim from cinema-worldbuilder/SKILL.md,
+# with [XX]->{lens}/{runtime}, [palette descriptor]->{palette},
+# [stage-lighting...]->{stage_lighting}.
+MODES = {
+    "M1": {
+        "label": "M1 - Narrative",
+        "body": "ARRI Alexa 35",
+        "lens_family": "Panavision Ultra Vintage anamorphic",
+        "requires": [],
+        "camera_block": (
+            "Shot on ARRI Alexa 35 in ProRes 4444 LogC4, Panavision Ultra Vintage "
+            "2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 filter, "
+            "handheld with natural breath and slight shake, photoreal cinematic grit "
+            "with oval bokeh and horizontal streak flares, warm anamorphic falloff "
+            "toward frame edges, Kodak Vision3 250D film emulation grade with slight "
+            "halation on highlights and 800 ASA grain structure, teal-amber color "
+            "split with cool teal-blue shadows and warm amber highlights, organic "
+            "lens breathing on focus racks, shallow depth of field, 24fps base "
+            "shutter 180 degrees, total runtime roughly {runtime} seconds."
+        ),
+    },
+    "M2": {
+        "label": "M2 - Studio",
+        "body": "ARRI Alexa Mini LF",
+        "lens_family": "Cooke S4/i spherical",
+        "requires": [],
+        "camera_block": (
+            "Shot on ARRI Alexa Mini LF in ProRes 4444 LogC4, Cooke S4/i spherical "
+            "prime {lens}mm at T2 with Tiffen Black Pro-Mist 1/2 filter, locked-off "
+            "tripod with optional 4-to-6 inch slow push-in, photoreal editorial "
+            "fashion film aesthetic with gentle halation bloom on highlights and "
+            "soft warm falloff in the Cooke signature, fine 400 ASA film grain "
+            "structure retaining warmth in the shadows, highlights allowed to bloom "
+            "slightly around fabric and chrome surfaces, saturated editorial grade "
+            "with warm-retained blacks not crushed to pure black, slight skin tone "
+            "warmth from the Cooke color rendition, 24fps base shutter 180 degrees, "
+            "total runtime roughly {runtime} seconds. Not CGI, not plastic, "
+            "shot-on-film analog aesthetic with real-world lens character."
+        ),
+    },
+    "M3": {
+        "label": "M3 - Action",
+        "body": "ARRI Alexa 35",
+        "lens_family": "Panavision Ultra Vintage anamorphic",
+        "requires": ["palette"],
+        "camera_block": (
+            "Shot on ARRI Alexa 35 in ProRes 4444 LogC4, Panavision Ultra Vintage "
+            "2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 filter, "
+            "all camera work is handheld and shaky throughout with constant operator "
+            "micro-jitter, reactive movement, and chaotic shake, no stabilized or "
+            "locked-off or dolly-smooth shots anywhere, gritty "
+            "documentary-meets-sci-fi war film aesthetic with no stylization and "
+            "everything grounded in physical realism, Kodak Vision3 250D film "
+            "emulation with 800 ASA grain structure, {palette} with dusty "
+            "atmospheric haze, slight halation on highlights, 24fps base shutter "
+            "180 degrees, total runtime roughly {runtime} seconds."
+        ),
+    },
+    "M4": {
+        "label": "M4 - Performance",
+        "body": "ARRI Alexa 35",
+        "lens_family": "Panavision Ultra Vintage anamorphic",
+        "requires": ["stage_lighting"],
+        "camera_block": (
+            "Shot on ARRI Alexa 35 in ProRes 4444 LogC4, Panavision Ultra Vintage "
+            "2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 filter, "
+            "mixed handheld pit-photographer energy with rapid handhelds and shaky "
+            "low-angle operator work and orbital handheld passes around the "
+            "performers, hard cuts between angles, no stabilized or locked-off "
+            "shots, photoreal concert documentary aesthetic, Kodak Vision3 250D "
+            "film emulation with fine grain structure overlaid throughout, slightly "
+            "desaturated cool tones with warm highlight bloom and deep blacks "
+            "holding shadow detail, {stage_lighting}, heavy volumetric haze with "
+            "dust suspended in every beam, real sweat sheen on skin and real fabric "
+            "darkening from exertion, gentle halation on light sources, 24fps base "
+            "shutter 180 degrees, total runtime roughly {runtime} seconds."
+        ),
+    },
+    "M5": {
+        "label": "M5 - Atmospheric",
+        "body": "ARRI Alexa Mini LF",
+        "lens_family": "Panavision Ultra Vintage anamorphic",
+        "requires": ["palette"],
+        "camera_block": (
+            "Shot on ARRI Alexa Mini LF in ProRes 4444 LogC4, Panavision Ultra "
+            "Vintage 2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 "
+            "filter, locked-off or extremely slow push-in motion only, no handheld "
+            "energy, photoreal atmospheric environment plate aesthetic, Kodak "
+            "Vision3 250D film emulation with fine 400 ASA grain structure, "
+            "palette-driven grade with {palette}, strong negative space, deep depth "
+            "of field, light atmospheric haze with dust particles suspended in air, "
+            "weathered material detail with oxidized metal and dust-covered glass "
+            "and cracked paint and moisture stains, slight anamorphic flares on any "
+            "directional light sources, 24fps base shutter 180 degrees, total "
+            "runtime roughly {runtime} seconds. No humans, no silhouettes, no "
+            "living beings - the environment is the subject."
+        ),
+    },
+}
+
+MODE_CHOICES = [MODES[k]["label"] for k in ("M1", "M2", "M3", "M4", "M5")]
+MODE_LABEL_TO_KEY = {MODES[k]["label"]: k for k in MODES}
