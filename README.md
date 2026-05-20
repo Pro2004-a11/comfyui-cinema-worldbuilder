@@ -31,7 +31,13 @@ ready-to-run example workflows for t2v, i2v, v2v, and hi-res 1080p production.
   <em>▶ <strong><a href="https://github.com/Pro2004-a11/comfyui-cinema-worldbuilder/releases/download/v0.2.0/q2k_vs_fp8_full_reel.mp4">Watch the full A/B reel with audio</a></strong> (1:47, 45 MB) — or browse all <a href="https://github.com/Pro2004-a11/comfyui-cinema-worldbuilder/releases/tag/v0.2.0">release assets</a></em>
 </p>
 
-> **Q2_K GGUF (left) vs FP8 dev + distill LoRA (right)** — same Cinema Worldbuilder prompts, two LTX 2.3 model variants. 2 scenes × 5 camera modes = 10 paired clips in the full reel; the looping highlight above shows the M3 Action + M4 Performance cells. The fp8 dev + distill LoRA chain matches the **Comfy-Org canonical template** and is the recommended production path on a 12 GB GPU.
+> **Q2_K GGUF (left) vs FP8 dev + distill LoRA (right)** — same Cinema Worldbuilder prompts, two LTX 2.3 model variants. 2 scenes × 5 camera modes = 10 paired clips in the full reel; the looping highlight above shows the M3 Action + M4 Performance cells.
+>
+> **🎨 FP8 + distill LoRA** — sharper, higher contrast, richer color grade. Reads like a modern digital cinema camera. Strong for advertising / music video / fashion / hero shots.
+>
+> **🎞️ Q2_K GGUF** — less saturated, softer highlight rolloff, slightly milky. Old-film, naturalistic feel. Surprisingly nice for documentary / drama / vérité styles.
+>
+> Same model, different quant — pick the chain that matches your project, not just the "best quality" label.
 
 ---
 
@@ -49,12 +55,13 @@ The pack ships three ComfyUI nodes under the `Cinema Worldbuilder` category:
 
 ## 🔬 What we learned (the headline)
 
-Three findings from a controlled 26-pair A/B sweep on LTX 2.3 22B distilled
+Four findings from a controlled 26-pair A/B sweep on LTX 2.3 22B distilled
 1.1, evidence in [`FINDINGS_FOR_LTX.md`](FINDINGS_FOR_LTX.md):
 
 1. **Equipment vocabulary is decorative** — compressing the camera/lens block by **−48%** (180 → 94 words) produces visually indistinguishable output. CLIP image-embedding cosine similarity: **0.967 ± 0.071 paired** vs **0.699 ± 0.076 control** (≈ 3.5σ effect size). Arri / Master Primes / ND filter indices: not interpreted by the model.
 2. **`static_description` is load-bearing** — the camera-vocabulary phrasing applies a *grade* (palette, motion vocabulary, stage lighting); it does **not** carry scene content. Strip the scene noun and even rich camera prompts collapse to abstract lens-mush.
 3. **`LTXVScheduler` defaults leave the distilled-1.1 schedule undenoised** — output looks soft and grainy. The clean fix is a `ManualSigmas` schedule from the Lightricks 1.1 reference; details in the writeup.
+4. **Different quantizations produce different "looks"** (craft note) — the dev-fp8 + distill LoRA chain renders modern-digital-cinema sharp/contrasty/saturated; the Q2_K GGUF base renders old-film soft/naturalistic. Not a strict upgrade — pick by project, not by spec.
 
 ## 📦 Install
 
@@ -76,12 +83,12 @@ its node list at page load.
 In `example_workflows/` — each pipeline in two formats: `*.json` (API, for
 headless submission) and `*_ui.json` (graph format, open in the ComfyUI canvas).
 
-| Workflow | Pipeline | Notes |
-|----------|----------|-------|
-| **[`cinema_ltx23_t2v_hires_fp8.json`](example_workflows/cinema_ltx23_t2v_hires_fp8.json)** | **Hi-res t2v + i2v** (recommended) | Built on the **Comfy-Org canonical template** — two-stage 540p draft → spatial upscale → 1088p refine. Cinema nodes drive the positive prompt. Uses `ltx-2.3-22b-dev-fp8.safetensors` + distill LoRA. Output: 1280×704–1920×1088 @ 24 fps with audio, ≈ 5 s clip, ≈ 290 s wall time on RTX 4070 Ti. |
-| [`cinema_ltx23_t2v.json`](example_workflows/cinema_ltx23_t2v.json) + [`_ui`](example_workflows/cinema_ltx23_t2v_ui.json) | Single-stage t2v | Faster (≈ 75 s wall), 768×512. Good for sweeps and iteration. |
-| [`cinema_ltx23_i2v.json`](example_workflows/cinema_ltx23_i2v.json) + [`_ui`](example_workflows/cinema_ltx23_i2v_ui.json) | First-frame image-to-video | `LoadImage` anchor via `LTXVAddGuide(frame_idx=0, strength=1.0)`. CFGGuider's pos/neg pull from AddGuide outputs (the i2v anchor point), not raw `LTXVConditioning`. |
-| [`cinema_ltx23_v2v.json`](example_workflows/cinema_ltx23_v2v.json) + [`_ui`](example_workflows/cinema_ltx23_v2v_ui.json) | Video-to-video refine | Adapted from a known-good warp-refine graph. Useful for upgrading rough drafts. |
+| Workflow | Pipeline | Look | Notes |
+|----------|----------|------|-------|
+| **[`cinema_ltx23_t2v_hires_fp8.json`](example_workflows/cinema_ltx23_t2v_hires_fp8.json)** | **Hi-res t2v + i2v** | 🎨 modern digital cinema (sharper, contrasty, richer grade) | Built on the **Comfy-Org canonical template** — two-stage 540p draft → spatial upscale → 1088p refine. Cinema nodes drive the positive prompt. Uses `ltx-2.3-22b-dev-fp8.safetensors` + distill LoRA. Output: 1280×704–1920×1088 @ 24 fps with audio, ≈ 5 s clip, ≈ 290 s wall time on RTX 4070 Ti. |
+| [`cinema_ltx23_t2v.json`](example_workflows/cinema_ltx23_t2v.json) + [`_ui`](example_workflows/cinema_ltx23_t2v_ui.json) | Single-stage t2v | 🎞️ old-film naturalistic (softer, less saturated) | Q2_K GGUF base. Faster (≈ 75 s wall), 768×512. Good for sweeps, iteration, and projects wanting a less-graded look. |
+| [`cinema_ltx23_i2v.json`](example_workflows/cinema_ltx23_i2v.json) + [`_ui`](example_workflows/cinema_ltx23_i2v_ui.json) | First-frame image-to-video | (matches base model) | `LoadImage` anchor via `LTXVAddGuide(frame_idx=0, strength=1.0)`. CFGGuider's pos/neg pull from AddGuide outputs (the i2v anchor point), not raw `LTXVConditioning`. |
+| [`cinema_ltx23_v2v.json`](example_workflows/cinema_ltx23_v2v.json) + [`_ui`](example_workflows/cinema_ltx23_v2v_ui.json) | Video-to-video refine | (matches base model) | Adapted from a known-good warp-refine graph. Useful for upgrading rough drafts. |
 
 Load any `*_ui.json` in the ComfyUI canvas, edit the Cinema node widgets, hit Queue.
 

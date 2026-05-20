@@ -1,14 +1,16 @@
-# Three things I noticed about LTX 2.3 while building a prompt pack
+# Four things I noticed about LTX 2.3 while building a prompt pack
 
 *Yosi Refaeli — 2026-05-20*
 
 Posted as an FYI, not as a request. The Lightricks team owns the model; I am
 an independent practitioner who spent a weekend building a small ComfyUI prompt
-pack and ran a controlled side-by-side sweep along the way. Three observations
-were robust enough across my data that they felt worth writing down. None of
-this is a critique of the model — LTX 2.3 distilled 1.1 is genuinely good — and
-none of it is a sales pitch for the prompt pack, which is checked in as
-methodology, not as a product.
+pack and ran a controlled side-by-side sweep along the way. Four observations
+were robust enough across my data that they felt worth writing down — three
+empirical (with paired side-by-sides and a CLIP-similarity metric), one
+craft-observational about the visual "look" of different quantizations of
+the same model. None of this is a critique of the model — LTX 2.3 distilled
+1.1 is genuinely good — and none of it is a sales pitch for the prompt pack,
+which is checked in as methodology, not as a product.
 
 All numbers below are reproducible from the repo. Caveats and scope at the
 bottom; please read those before generalizing.
@@ -195,6 +197,40 @@ If `LTXVScheduler` is not safe with the distilled-1.1 weights under common
 default settings, a doc warning on the scheduler node's tooltip and/or the
 model card would prevent users who don't already have a known-good template
 on hand from getting soft residual-noise output as a first impression.
+
+---
+
+## Observation 4 (craft note) — different quantizations of the same model produce visibly different "looks"
+
+### What I tested
+
+Mid-study I ported the workflow from the **Q2_K GGUF base** (`ltx-2.3-22b-distilled-1.1-Q2_K.gguf` loaded via `UnetLoaderGGUF`) to the **dev-fp8 + distill LoRA chain** (`ltx-2.3-22b-dev-fp8.safetensors` via `CheckpointLoaderSimple` + `LoraLoaderModelOnly` @ strength 0.5) matching the Comfy-Org canonical template. Same Cinema Worldbuilder prompts, same scenes, same prompt content. Two scenes × five camera modes = 10 paired clips.
+
+### What I saw
+
+The two chains don't differ only in technical fidelity — they have **distinct visual personalities**:
+
+- **FP8 + distill LoRA chain**: sharper edges, higher contrast, more saturated and assertive color grade. Highlights bloom harder. Feels like footage from a modern digital cinema camera that has already been color-graded.
+- **Q2_K GGUF base**: softer highlight rolloff, less saturated overall, slightly milky. Feels closer to a flatter / less-graded "old film" or documentary capture style.
+
+This isn't a "fp8 is better" or "Q2_K is better" finding — it's a craft observation. The right pick depends on the project:
+
+| Project type | Likely better fit |
+|---|---|
+| Advertising, music video, fashion, hero shots | FP8 + distill LoRA |
+| Documentary, drama, vérité, naturalistic narrative | Q2_K GGUF |
+
+### Reading
+
+I'm not certain whether the look difference originates in the quantization scheme itself (fp8 vs Q2_K precision affecting color/contrast retention), the distill-LoRA application (Lightricks may have tuned it for a particular aesthetic target), or a combination. The two chains *are* different topologies, not just different precisions, so the cause isn't isolated. The observation stands either way: when picking a chain, consider the look you're after, not only the spec sheet.
+
+### Where the claim ends
+
+Two chains × ten paired clips × two scenes — eyeballing only, no perceptual metric run on the contrast/saturation difference. The "old film" / "modern cinema" language is subjective categorization. Different scenes might shift the rank.
+
+### Possible action if useful
+
+Worth a doc note that the LoRA-on-dev path and the GGUF-distilled path are *not* drop-in equivalents from a creative-direction standpoint. Users picking a base for a specific project should preview both before committing the render budget.
 
 ---
 

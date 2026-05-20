@@ -49,11 +49,19 @@ Easy mistake to inherit. Worth a doc warning, IMO.
 
 ---
 
-**🎁 Bonus: the model itself got better mid-study.**
+**🎁 Bonus finding: same model, two distinct "looks."**
 
-Switched from the Q2_K GGUF base to the dev-fp8 + distill LoRA chain (matching the Lightricks **Comfy-Org canonical template** that landed mid-week). Same Cinema Worldbuilder prompts. Visibly sharper output, cleaner motion, better skin in close-ups.
+I assumed the dev-fp8 + distill LoRA chain (matching the new Lightricks **Comfy-Org canonical template**) would just be a strict upgrade over the Q2_K GGUF base.
 
-A/B reel attached — same prompts, two LTX 2.3 model variants. Q2_K on the left, fp8+LoRA on the right.
+It's not. It's a different aesthetic.
+
+🎨 **FP8 + distill LoRA**: sharper, higher contrast, richer color grade. Feels like a modern digital cinema camera. Best for advertising, music video, fashion, hero shots.
+
+🎞️ **Q2_K GGUF**: less saturated, softer highlight rolloff, slightly milky. Gives an old-film, naturalistic feel. Surprisingly nice for documentary, drama, vérité projects.
+
+Same prompts. Same scenes. Different lens, basically. A/B reel attached — judge for yourself.
+
+The takeaway is craft-level, not spec-sheet: **"best quality" depends on the project**. Pick the chain that matches the look, not the bigger number.
 
 ---
 
@@ -98,3 +106,10 @@ If the current opener doesn't grab, swap in:
 - Emoji-anchored numbered findings for scannability
 - Closing tightened, "methodology over product" line preserved
 - Length dropped from ~520 → ~420 words
+
+## What changed in v3
+
+- Bonus reframed from "fp8 is just better" → "two distinct looks, pick by project"
+- Added the contrast/saturation craft observation (Yosi's note after watching the reel)
+- New positioning: FP8 = modern digital cinema look; Q2_K = old-film naturalistic
+- More respectful of craft choices — better-tasting than spec-bragging
