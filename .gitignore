@@ -2,3 +2,18 @@ __pycache__/
 *.pyc
 .pytest_cache/
 projects/
+
+# sweep artifacts — large, regenerable
+sweep/results/*.mp4
+sweep/results/frames/
+sweep/results/manifest.json
+sweep/results/index.html
+sweep/results/review.html
+sweep/results_v2/*.mp4
+sweep/results_v2/frames/
+sweep/results_v2/manifest.json
+sweep/results_v2/index.html
+sweep/results_ab/
+sweep/_captions/
+sweep/_captions_v2/
+sweep/*.log
