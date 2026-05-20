@@ -43,32 +43,93 @@ FONT_BOLD    = "C:/Windows/Fonts/consolab.ttf"
 SEED         = 1337  # fresh roll: SEED=42 produced visibly off M2 outputs in the previous pass
 
 # --- scenes ------------------------------------------------------------------
+#
+# Per-mode prose: each (scene, mode) cell carries scene content that SUPPORTS
+# the mode's register. Same setting (alley / boxing gym), but the subject,
+# action, and lighting cue shift per mode so the Cinema grammar's grade layer
+# has matching content to grade. Finding #2 from FINDINGS_FOR_LTX.md: static
+# description carries the content; camera grammar grades. So per-mode = each
+# mode gets prose that already implies its register.
+#
+# Mode register intent:
+#   M1 Narrative     -- character-focused, push-in, moody
+#   M2 Studio        -- editorial portrait, high-key, glossy, model-like subject
+#   M3 Action        -- fast motion, debris, two-figure combat, motion blur
+#   M4 Performance   -- stage subject, audience implied, lighting wash, energy
+#   M5 Atmospheric   -- no human subject, environmental only, slow drift
+
 SCENES = {
     "alley": dict(
         title="Rain-Slicked Alley",
-        style="cinematic, photoreal, shallow depth of field",
-        dynamic="a lone figure in a long coat walks slowly toward camera",
-        static="a narrow rain-slicked alley, neon signage reflecting in puddles, wet brick walls, the lone figure",
-        audio="distant city hum, footsteps on wet pavement, light rain",
-        # baseline = prose-only sentence (no camera grammar, no audio block)
-        baseline_text=(
-            "A lone figure in a long coat walks slowly toward camera through a narrow "
-            "rain-slicked alley. Neon signage reflects in puddles on wet brick walls. "
-            "Cinematic, photoreal, shallow depth of field."
-        ),
+        audio_default="distant city hum, footsteps on wet pavement, light rain",
+        modes={
+            "M1 - Narrative": dict(
+                style="cinematic, moody, photoreal, shallow depth of field",
+                dynamic="a lone figure in a long coat walks slowly toward camera",
+                static="a narrow rain-slicked alley, neon signage reflecting in puddles, wet brick walls, the lone figure",
+                audio="distant city hum, footsteps on wet pavement, light rain",
+            ),
+            "M2 - Studio": dict(
+                style="editorial fashion film, glossy, high-key, photoreal skin",
+                dynamic="a model in a long coat poses against the alley wall, slow turn of the head toward camera",
+                static="a narrow rain-slicked alley used as a fashion backdrop, neon signage glow on wet brick, the model in foreground",
+                audio="soft fabric rustle, distant city hum, faint rain",
+            ),
+            "M3 - Action": dict(
+                style="gritty documentary action realism, photoreal",
+                dynamic="two figures sprint through the alley, debris and water spray, kinetic combat motion",
+                static="a narrow rain-slicked alley, neon signage, wet brick walls, two running figures in mid-motion",
+                audio="pounding footsteps on wet pavement, water spray, ragged breath, light rain",
+            ),
+            "M4 - Performance": dict(
+                style="street performance documentary, neon-lit, photoreal, energetic",
+                dynamic="a street dancer moves in a fluid sequence under the neon signs, arms wide on a peak beat",
+                static="a narrow rain-slicked alley as a street stage, magenta and cyan neon wash, the dancer in foreground, small crowd implied off-frame",
+                audio="distant rhythmic bass thump from a club, footsteps on wet pavement, claps",
+            ),
+            "M5 - Atmospheric": dict(
+                style="atmospheric environment plate, still and quiet, photoreal",
+                dynamic="the camera drifts slowly forward down the empty alley, no people",
+                static="a narrow rain-slicked alley at dawn, neon signage flickering, wet brick walls, light rain, completely empty of figures",
+                audio="light rain, distant city hum, occasional drip",
+            ),
+        },
     ),
     "gym": dict(
         title="Boxing Gym at 2 AM",
-        style="gritty urban realism, late-night atmosphere, physical presence",
-        dynamic="an athletic-fit fighter throws a slow, powerful hook at a heavy bag",
-        static="an empty sweat-stained boxing gym, single overhead lamp illuminating a worn boxing ring, heavy bags hanging, the lone fighter in athletic wear",
-        audio="rhythmic breathing, heavy bag impact echo, faint hum of fluorescent lights",
-        baseline_text=(
-            "An athletic-fit fighter in athletic wear throws a slow, powerful hook at "
-            "a heavy bag in an empty sweat-stained boxing gym at 2 AM. A single overhead "
-            "lamp illuminates a worn boxing ring; more heavy bags hang in the darkness. "
-            "Gritty urban realism, late-night atmosphere."
-        ),
+        audio_default="rhythmic breathing, heavy bag impact echo, faint hum of fluorescent lights",
+        modes={
+            "M1 - Narrative": dict(
+                style="gritty urban realism, late-night atmosphere, physical presence, photoreal",
+                dynamic="an athletic-fit fighter throws a slow, powerful hook at a heavy bag",
+                static="an empty sweat-stained boxing gym, single overhead lamp illuminating a worn boxing ring, heavy bags hanging, the lone fighter in athletic wear",
+                audio="rhythmic breathing, heavy bag impact echo, faint hum of fluorescent lights",
+            ),
+            "M2 - Studio": dict(
+                style="editorial sports portrait, glossy, high-key, photoreal skin",
+                dynamic="an athlete in a boxing stance poses for the camera, slow head turn toward lens",
+                static="a boxing gym used as a portrait backdrop, single lamp providing key light, the athlete in foreground in athletic wear and gloves",
+                audio="fabric rustle, faint room tone, distant heavy-bag tap",
+            ),
+            "M3 - Action": dict(
+                style="gritty action realism, fast handheld, photoreal",
+                dynamic="two fighters spar fast in the ring, exchange of jabs and a hook, motion-blurred gloves",
+                static="a worn boxing ring under harsh overhead light, two fighters in athletic wear sparring, sweat in the air",
+                audio="rapid heavy-bag impacts, glove leather, breathing, faint corner shouts",
+            ),
+            "M4 - Performance": dict(
+                style="concert-style sports documentary, photoreal, energetic",
+                dynamic="a boxer raises both arms after a knockout, slow turn to face the camera, energy radiating",
+                static="a worn boxing ring under a single overhead lamp, the victorious boxer in foreground, audience silhouettes implied beyond the ropes",
+                audio="distant cheering crowd, low roar, breathing",
+            ),
+            "M5 - Atmospheric": dict(
+                style="atmospheric environment plate, still and quiet, photoreal",
+                dynamic="the camera drifts slowly across the empty gym, no people",
+                static="an empty sweat-stained boxing gym at 2 AM, single overhead lamp casting long shadows, a heavy bag swinging gently from a previous strike, no figures",
+                audio="creak of a swinging heavy bag, faint hum of fluorescent lights, distant traffic",
+            ),
+        },
     ),
 }
 
@@ -82,9 +143,11 @@ MODES = [
 
 # --- workflow builders -------------------------------------------------------
 def build_cinema(base, scene_key, mode, lens, seed):
+    """Per-(scene, mode) prose. Cinema grammar only grades — content is in static_description."""
     wf = copy.deepcopy(base)
     wf.pop("_comment", None)
     sc = SCENES[scene_key]
+    mode_prose = sc["modes"][mode]
     cam = wf["cinema_camera"]["inputs"]
     cam["mode"] = mode
     cam["lens_mm"] = lens
@@ -92,10 +155,10 @@ def build_cinema(base, scene_key, mode, lens, seed):
     cam["palette"] = "warm amber and deep teal" if scene_key == "alley" else "neutral cinematic grade"
     cam["stage_lighting"] = "soft key with practical lamp glow"
     p = wf["cinema_prompt"]["inputs"]
-    p["style_and_mood"]      = sc["style"]
-    p["dynamic_description"] = sc["dynamic"]
-    p["static_description"]  = sc["static"]
-    wf["cinema_audio"]["inputs"]["sounds"] = sc["audio"]
+    p["style_and_mood"]      = mode_prose["style"]
+    p["dynamic_description"] = mode_prose["dynamic"]
+    p["static_description"]  = mode_prose["static"]
+    wf["cinema_audio"]["inputs"]["sounds"] = mode_prose["audio"]
     wf["noise_draft"]["inputs"]["noise_seed"]  = seed
     wf["noise_refine"]["inputs"]["noise_seed"] = seed + 1
     short_mode = mode.split(" - ")[0]
@@ -332,9 +395,9 @@ def compose_all():
         # Per-scene title card
         scene_title = os.path.join(TITLE_DIR, f"{10*i:02d}_scene_{scene_key}.mp4")
         make_title_card(sc["title"],
-                        f"scene {i} of {len(SCENES)} -- five camera modes over one scene",
+                        f"scene {i} of {len(SCENES)} -- five camera modes, prose tuned per mode",
                         scene_title, duration=2.5,
-                        sub2=f"static_description: {sc['static'][:90]}...")
+                        sub2=f"setting: {sc['modes']['M1 - Narrative']['static'][:90]}...")
         parts.append(scene_title)
 
         cells = []
