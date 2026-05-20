@@ -11,3 +11,7 @@ Repository = "https://github.com/yosir/comfyui-cinema-worldbuilder"
 [tool.comfy]
 PublisherId = "yosir"
 DisplayName = "Cinema Worldbuilder"
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib --rootdir=."
+testpaths = ["tests"]
