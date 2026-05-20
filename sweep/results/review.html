@@ -1,0 +1,108 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>Cinema Worldbuilder t2v sweep — side-by-side review</title>
+<style>
+body{font:13px/1.45 system-ui,sans-serif;background:#0d0d0f;color:#e8e8ea;margin:0;padding:24px}
+h1{margin:0 0 6px;font-size:22px}
+.sub{color:#9aa;margin-bottom:24px}
+section{margin:28px 0;border-top:1px solid #2a2a32;padding-top:18px}
+h2{font-size:15px;margin:0 0 12px;color:#cbd}
+h3{font-size:13px;color:#9aa;margin:18px 0 8px;font-weight:600}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.cell{display:flex;flex-direction:column}
+.cell .tag{font:600 12px/1 ui-monospace,Consolas,monospace;color:#9bd;margin-bottom:4px}
+video{display:block;background:#000;border-radius:4px}
+.w360 video{width:360px;height:240px;object-fit:cover}
+.w240 video{width:240px;height:160px;object-fit:cover}
+.fail{width:240px;height:160px;background:#2a1818;border:1px dashed #6b3030;border-radius:4px;
+      display:flex;align-items:center;justify-content:center;color:#c98;font-size:12px;text-align:center;padding:6px}
+.note{color:#9aa;font-style:italic;margin:6px 0 0}
+</style>
+
+<h1>Cinema Worldbuilder t2v — side-by-side review</h1>
+<div class=sub>26/28 clips · params burned top-left on every frame · grouped for apples-to-apples comparison.</div>
+
+<section>
+<h2>Block B — Grammar A/B (the key diagnostic)</h2>
+<div class=note>For each scene+seed, three variants of the SAME prompt: <b>FULL</b> (cinema grammar + scene + audio) · <b>PROSE</b> (scene text only, no grammar) · <b>CAMERA</b> (camera grammar + action only, no scene nouns). Read left → right within each row.</div>
+
+<h3>alley · seed 42</h3>
+<div class="row w360">
+  <div class=cell><div class=tag>FULL</div><video src="B_alley_FULL_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>PROSE</div><video src="B_alley_PROSE_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>CAMERA (broke — no scene nouns)</div><video src="B_alley_CAMERA_s42.mp4" controls muted></video></div>
+</div>
+
+<h3>alley · seed 7</h3>
+<div class="row w360">
+  <div class=cell><div class=tag>FULL</div><video src="B_alley_FULL_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>PROSE</div><video src="B_alley_PROSE_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>CAMERA</div><video src="B_alley_CAMERA_s7.mp4" controls muted></video></div>
+</div>
+
+<h3>bridge · seed 42</h3>
+<div class="row w360">
+  <div class=cell><div class=tag>FULL</div><video src="B_bridge_FULL_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>PROSE</div><video src="B_bridge_PROSE_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>CAMERA (held — "steel truss bridge" in action line)</div><video src="B_bridge_CAMERA_s42.mp4" controls muted></video></div>
+</div>
+
+<h3>bridge · seed 7</h3>
+<div class="row w360">
+  <div class=cell><div class=tag>FULL</div><video src="B_bridge_FULL_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>PROSE</div><video src="B_bridge_PROSE_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>CAMERA</div><video src="B_bridge_CAMERA_s7.mp4" controls muted></video></div>
+</div>
+</section>
+
+<section>
+<h2>Block A — Mode coverage (the 5 cinema modes side by side)</h2>
+<div class=note>Same row, different mode — read left → right to see whether the camera grammar actually shifts the register.</div>
+
+<h3>seed 42</h3>
+<div class="row w240">
+  <div class=cell><div class=tag>M1 Narrative</div><video src="A_M1_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M2 Studio</div><video src="A_M2_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M3 Action</div><video src="A_M3_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M4 Performance (weak)</div><video src="A_M4_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M5 Atmospheric</div><video src="A_M5_s42.mp4" controls muted></video></div>
+</div>
+
+<h3>seed 7</h3>
+<div class="row w240">
+  <div class=cell><div class=tag>M1 Narrative</div><video src="A_M1_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M2 Studio</div><video src="A_M2_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M3 Action</div><video src="A_M3_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M4 Performance</div><video src="A_M4_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>M5 Atmospheric</div><video src="A_M5_s7.mp4" controls muted></video></div>
+</div>
+</section>
+
+<section>
+<h2>Block C — Scene robustness (hard / soft / crowd)</h2>
+<div class=note>Same workflow (M1, 55mm), different scene types. Tests where LTX holds up.</div>
+
+<h3>seed 42</h3>
+<div class="row w360">
+  <div class=cell><div class=tag>hard geometry — bridge</div><video src="C_bridge_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>soft organic — serum (no cobweb)</div><video src="C_serum_s42.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>crowd — market</div><div class=fail>FAILED at submit<br>guardrail caught "music"<br>(in "distant music box")</div></div>
+</div>
+
+<h3>seed 7</h3>
+<div class="row w360">
+  <div class=cell><div class=tag>hard geometry — bridge</div><video src="C_bridge_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>soft organic — serum</div><video src="C_serum_s7.mp4" controls muted></video></div>
+  <div class=cell><div class=tag>crowd — market</div><div class=fail>FAILED — same cause</div></div>
+</div>
+</section>
+
+<section>
+<h2>What this view shows</h2>
+<ol>
+  <li><b>Block B alley row.</b> FULL is moody, PROSE is brighter, CAMERA is lens-mush. The camera-grammar alone, with no scene nouns, has nothing to render — proof that <code>static_description</code> is load-bearing.</li>
+  <li><b>Block B bridge row.</b> CAMERA holds here because "steel truss bridge" was named in the action line — confirms the same finding from the other side.</li>
+  <li><b>Block A row.</b> Modes ARE distinct in register, but A_M2 reveals LTX largely ignores the dense ARRI/Cooke/Tiffen jargon — the studio reads "studio portrait" not "Cooke S4/i with Pro-Mist 1/2." Motivates v2: shorter blocks built on words LTX actually obeys.</li>
+  <li><b>Block C.</b> Hard geometry crisp; soft-organic coherent (no cobweb collapse — that was v2v-specific); crowd untested.</li>
+</ol>
+</section>

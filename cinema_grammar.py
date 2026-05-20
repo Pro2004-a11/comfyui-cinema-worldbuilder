@@ -19,6 +19,14 @@ AUDIO_TEMPLATE = "Audio: diegetic only - {sounds}, no music, {dialogue_clause}."
 # Canonical camera blocks transcribed verbatim from cinema-worldbuilder/SKILL.md,
 # with [XX]->{lens}/{runtime}, [palette descriptor]->{palette},
 # [stage-lighting...]->{stage_lighting}.
+# v2 (2026-05-20) camera blocks — short, built on the words LTX actually obeys.
+# Yesterday's sweep (Block B grammar A/B) showed LTX largely ignores dense
+# equipment jargon (ARRI/Panavision/Cooke/Tiffen/Kodak grain stocks) — the
+# studio portrait read as a generic portrait, not "Cooke S4/i with Pro-Mist 1/2."
+# v2 keeps what LTX measurably responds to (motion type, lighting register, lens
+# framing, palette, depth of field) and drops the equipment names. Each block is
+# ~30-40 words vs v1's ~80-120. The {lens}/{runtime}/{palette}/{stage_lighting}
+# placeholders are preserved so build_camera_block is unchanged.
 MODES = {
     "M1": {
         "label": "M1 - Narrative",
@@ -26,15 +34,10 @@ MODES = {
         "lens_family": "Panavision Ultra Vintage anamorphic",
         "requires": [],
         "camera_block": (
-            "Shot on ARRI Alexa 35 in ProRes 4444 LogC4, Panavision Ultra Vintage "
-            "2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 filter, "
-            "handheld with natural breath and slight shake, photoreal cinematic grit "
-            "with oval bokeh and horizontal streak flares, warm anamorphic falloff "
-            "toward frame edges, Kodak Vision3 250D film emulation grade with slight "
-            "halation on highlights and 800 ASA grain structure, teal-amber color "
-            "split with cool teal-blue shadows and warm amber highlights, organic "
-            "lens breathing on focus racks, shallow depth of field, 24fps base "
-            "shutter 180 degrees, total runtime roughly {runtime} seconds."
+            "Cinematic real-world handheld shot, {lens}mm lens, the camera breathes "
+            "with subtle handheld motion, photoreal grit, low-key teal-and-warm "
+            "color grade, shallow depth of field, fine film grain. Total runtime "
+            "roughly {runtime} seconds."
         ),
     },
     "M2": {
@@ -43,17 +46,11 @@ MODES = {
         "lens_family": "Cooke S4/i spherical",
         "requires": [],
         "camera_block": (
-            "Shot on ARRI Alexa Mini LF in ProRes 4444 LogC4, Cooke S4/i spherical "
-            "prime {lens}mm at T2 with Tiffen Black Pro-Mist 1/2 filter, locked-off "
-            "tripod with optional 4-to-6 inch slow push-in, photoreal editorial "
-            "fashion film aesthetic with gentle halation bloom on highlights and "
-            "soft warm falloff in the Cooke signature, fine 400 ASA film grain "
-            "structure retaining warmth in the shadows, highlights allowed to bloom "
-            "slightly around fabric and chrome surfaces, saturated editorial grade "
-            "with warm-retained blacks not crushed to pure black, slight skin tone "
-            "warmth from the Cooke color rendition, 24fps base shutter 180 degrees, "
-            "total runtime roughly {runtime} seconds. Not CGI, not plastic, "
-            "shot-on-film analog aesthetic with real-world lens character."
+            "Editorial studio shot, {lens}mm portrait framing, locked-off camera "
+            "with an optional slow push-in, soft high-key lighting, saturated "
+            "editorial color grade with warm retained blacks, shallow depth of "
+            "field, fine film grain, photoreal skin. Total runtime roughly "
+            "{runtime} seconds."
         ),
     },
     "M3": {
@@ -62,16 +59,10 @@ MODES = {
         "lens_family": "Panavision Ultra Vintage anamorphic",
         "requires": ["palette"],
         "camera_block": (
-            "Shot on ARRI Alexa 35 in ProRes 4444 LogC4, Panavision Ultra Vintage "
-            "2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 filter, "
-            "all camera work is handheld and shaky throughout with constant operator "
-            "micro-jitter, reactive movement, and chaotic shake, no stabilized or "
-            "locked-off or dolly-smooth shots anywhere, gritty "
-            "documentary-meets-sci-fi war film aesthetic with no stylization and "
-            "everything grounded in physical realism, Kodak Vision3 250D film "
-            "emulation with 800 ASA grain structure, {palette} with dusty "
-            "atmospheric haze, slight halation on highlights, 24fps base shutter "
-            "180 degrees, total runtime roughly {runtime} seconds."
+            "Gritty handheld action shot, {lens}mm framing, the camera is shaky "
+            "throughout with constant reactive operator movement, documentary "
+            "realism, {palette}, dust and atmospheric haze, fine film grain. "
+            "Total runtime roughly {runtime} seconds."
         ),
     },
     "M4": {
@@ -80,18 +71,11 @@ MODES = {
         "lens_family": "Panavision Ultra Vintage anamorphic",
         "requires": ["stage_lighting"],
         "camera_block": (
-            "Shot on ARRI Alexa 35 in ProRes 4444 LogC4, Panavision Ultra Vintage "
-            "2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 filter, "
-            "mixed handheld pit-photographer energy with rapid handhelds and shaky "
-            "low-angle operator work and orbital handheld passes around the "
-            "performers, hard cuts between angles, no stabilized or locked-off "
-            "shots, photoreal concert documentary aesthetic, Kodak Vision3 250D "
-            "film emulation with fine grain structure overlaid throughout, slightly "
-            "desaturated cool tones with warm highlight bloom and deep blacks "
-            "holding shadow detail, {stage_lighting}, heavy volumetric haze with "
-            "dust suspended in every beam, real sweat sheen on skin and real fabric "
-            "darkening from exertion, gentle halation on light sources, 24fps base "
-            "shutter 180 degrees, total runtime roughly {runtime} seconds."
+            "Concert documentary shot, {lens}mm framing, handheld pit-photographer "
+            "energy with low-angle and orbital moves and hard cuts between angles, "
+            "{stage_lighting}, volumetric stage haze, real sweat and fabric "
+            "detail on the performer, fine film grain. Total runtime roughly "
+            "{runtime} seconds."
         ),
     },
     "M5": {
@@ -100,18 +84,10 @@ MODES = {
         "lens_family": "Panavision Ultra Vintage anamorphic",
         "requires": ["palette"],
         "camera_block": (
-            "Shot on ARRI Alexa Mini LF in ProRes 4444 LogC4, Panavision Ultra "
-            "Vintage 2x anamorphic {lens}mm at T2.3 with Tiffen Black Pro-Mist 1/4 "
-            "filter, locked-off or extremely slow push-in motion only, no handheld "
-            "energy, photoreal atmospheric environment plate aesthetic, Kodak "
-            "Vision3 250D film emulation with fine 400 ASA grain structure, "
-            "palette-driven grade with {palette}, strong negative space, deep depth "
-            "of field, light atmospheric haze with dust particles suspended in air, "
-            "weathered material detail with oxidized metal and dust-covered glass "
-            "and cracked paint and moisture stains, slight anamorphic flares on any "
-            "directional light sources, 24fps base shutter 180 degrees, total "
-            "runtime roughly {runtime} seconds. No humans, no silhouettes, no "
-            "living beings - the environment is the subject."
+            "Atmospheric environment shot, {lens}mm framing, locked-off camera or "
+            "extremely slow push-in, palette-driven color grade with {palette}, "
+            "deep depth of field, atmospheric haze with dust in shafts of light, "
+            "weathered surfaces, no people. Total runtime roughly {runtime} seconds."
         ),
     },
 }

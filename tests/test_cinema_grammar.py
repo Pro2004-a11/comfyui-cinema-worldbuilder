@@ -56,7 +56,7 @@ def test_build_camera_block_m1():
     block = cg.build_camera_block("M1", "55", 4.04, "", "")
     assert "55mm" in block
     assert "roughly 4.0 seconds" in block
-    assert "ARRI Alexa 35" in block
+    assert "handheld" in block            # M1 identifier (v2 short blocks)
 
 
 def test_build_camera_block_m3_uses_palette():

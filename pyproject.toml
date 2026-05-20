@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-cinema-worldbuilder"
-version = "0.1.0"
+version = "0.2.0"
 description = "Cinema Worldbuilder grammar as ComfyUI nodes for LTX 2.3 video prompting"
 license = { text = "MIT" }
 requires-python = ">=3.10"
