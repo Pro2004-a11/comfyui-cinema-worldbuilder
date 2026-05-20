@@ -1,5 +1,5 @@
 {
-  "_comment": "Cinema Worldbuilder example: IMAGE-TO-VIDEO (first frame) on LTX 2.3 22B distilled Q2_K GGUF. Same as t2v but a LoadImage supplies a literal first frame via LTXVAddGuide (frame_idx 0, strength 1.0). PLACEHOLDER: edit the LoadImage 'image' field to your uploaded first-frame image (default 'example.png' must exist in ComfyUI/input/). LTXVAddGuide injects the frame into the VIDEO latent and rewrites positive/negative conditioning; the guide's latent is then concatenated with the audio latent before sampling, and the guide's conditioning outputs feed the sampler. Edit the Cinema node inputs in the UI. Requires the same LTX 2.3 models as cinema_ltx23_t2v.json.",
+  "_comment": "Cinema Worldbuilder example: IMAGE-TO-VIDEO on LTX 2.3 22B distilled Q2_K GGUF. Rebuilt on the t2v-validated sampling chain (ManualSigmas + SamplerCustomAdvanced + RandomNoise + CFGGuider) — LTXVScheduler was leaving the schedule undenoised on this distilled model. LoadImage supplies the first frame via LTXVAddGuide (frame_idx 0, strength 1.0); CFGGuider's positive/negative pull from add_guide's rewritten conditioning (the i2v anchor) — NOT from the raw conditioning node. PLACEHOLDER: edit the LoadImage 'image' field to your uploaded first-frame image (default 'example.png' must exist in ComfyUI/input/). Edit the Cinema node inputs in the UI. Requires the same LTX 2.3 models as cinema_ltx23_t2v.json.",
   "cinema_camera": {
     "class_type": "CinemaWorldbuilder_CameraBlock",
     "inputs": {
@@ -185,14 +185,10 @@
       ]
     }
   },
-  "scheduler": {
-    "class_type": "LTXVScheduler",
+  "sigmas": {
+    "class_type": "ManualSigmas",
     "inputs": {
-      "steps": 8,
-      "max_shift": 2.05,
-      "base_shift": 0.95,
-      "stretch": true,
-      "terminal": 0.0
+      "sigmas": "1., 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
     }
   },
   "sampler_select": {
@@ -201,16 +197,19 @@
       "sampler_name": "euler_ancestral"
     }
   },
-  "sampler": {
-    "class_type": "SamplerCustom",
+  "noise": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 420
+    }
+  },
+  "guider": {
+    "class_type": "CFGGuider",
     "inputs": {
       "model": [
         "model",
         0
       ],
-      "add_noise": true,
-      "noise_seed": 0,
-      "cfg": 1.0,
       "positive": [
         "add_guide",
         0
@@ -219,12 +218,26 @@
         "add_guide",
         1
       ],
+      "cfg": 1.0
+    }
+  },
+  "sampler": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "noise",
+        0
+      ],
+      "guider": [
+        "guider",
+        0
+      ],
       "sampler": [
         "sampler_select",
         0
       ],
       "sigmas": [
-        "scheduler",
+        "sigmas",
         0
       ],
       "latent_image": [

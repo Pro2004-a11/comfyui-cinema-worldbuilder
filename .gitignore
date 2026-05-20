@@ -17,3 +17,7 @@ sweep/results_ab/
 sweep/_captions/
 sweep/_captions_v2/
 sweep/*.log
+
+# showcase / figures — regenerable, large
+sweep/showcase/
+sweep/figures/

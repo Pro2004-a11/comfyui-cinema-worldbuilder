@@ -1,0 +1,373 @@
+{
+  "video_vae": {
+    "class_type": "VAELoaderKJ",
+    "inputs": {
+      "vae_name": "LTX23_video_vae_bf16.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    }
+  },
+  "audio_vae": {
+    "_comment": "LTXVAudioVAELoader reads from models/checkpoints/ on this install \u2014 use VAELoaderKJ (vae/) like our other workflows.",
+    "class_type": "VAELoaderKJ",
+    "inputs": {
+      "vae_name": "LTX23_audio_vae_bf16.safetensors",
+      "device": "main_device",
+      "weight_dtype": "bf16"
+    }
+  },
+  "unet": {
+    "_comment": "Base model: GGUF Q2_K (our v0.2.0 validated setup). mxfp8 file is on disk but requires ComfyUI > 0.16.4 (QUANT_ALGOS missing 'mxfp8'). Swap back to DiffusionModelLoaderKJ + mxfp8 once ComfyUI upgrades.",
+    "class_type": "UnetLoaderGGUF",
+    "inputs": {
+      "unet_name": "ltx-2.3-22b-distilled-1.1-Q2_K.gguf"
+    }
+  },
+  "model": {
+    "class_type": "LTXVChunkFeedForward",
+    "inputs": {
+      "model": [
+        "unet",
+        0
+      ],
+      "chunks": 2,
+      "dim_threshold": 4096
+    }
+  },
+  "clip": {
+    "class_type": "DualCLIPLoaderGGUF",
+    "inputs": {
+      "clip_name1": "gemma-3-12b-it-IQ4_XS.gguf",
+      "clip_name2": "ltx-2.3_text_projection_bf16.safetensors",
+      "type": "ltxv"
+    }
+  },
+  "positive": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "__PROSE_PLACEHOLDER__"
+    }
+  },
+  "negative": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "logos, brand names, signage, watermarks, distorted text, jittery motion, jumping, juggling, fast-twisting movements, chaotic motion artifacts, excessive objects, scene complexity overload, inconsistent lighting, mixed light sources, poor anatomy, morphing limbs, blurred face, low resolution, cartoonish, 3D render style, over-sharpened edges"
+    }
+  },
+  "conditioning": {
+    "class_type": "LTXVConditioning",
+    "inputs": {
+      "positive": [
+        "positive",
+        0
+      ],
+      "negative": [
+        "negative",
+        0
+      ],
+      "frame_rate": 24.0
+    }
+  },
+  "empty_video_latent": {
+    "_comment": "Stage 1 draft resolution: 960x540 (16:9 540p).",
+    "class_type": "EmptyLTXVLatentVideo",
+    "inputs": {
+      "width": 960,
+      "height": 540,
+      "length": 97,
+      "batch_size": 1
+    }
+  },
+  "empty_audio_latent": {
+    "class_type": "LTXVEmptyLatentAudio",
+    "inputs": {
+      "frames_number": 97,
+      "frame_rate": 24,
+      "batch_size": 1,
+      "audio_vae": [
+        "audio_vae",
+        0
+      ]
+    }
+  },
+  "concat_av_draft": {
+    "class_type": "LTXVConcatAVLatent",
+    "inputs": {
+      "video_latent": [
+        "empty_video_latent",
+        0
+      ],
+      "audio_latent": [
+        "empty_audio_latent",
+        0
+      ]
+    }
+  },
+  "draft_scheduler": {
+    "_comment": "Stage 1: LTXVScheduler terminal=0.1 stretch=true steps=8 (Lightricks 1.1 reference).",
+    "class_type": "LTXVScheduler",
+    "inputs": {
+      "steps": 8,
+      "max_shift": 2.05,
+      "base_shift": 0.95,
+      "stretch": true,
+      "terminal": 0.1,
+      "latent": [
+        "concat_av_draft",
+        0
+      ]
+    }
+  },
+  "sampler_select_draft": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler_ancestral"
+    }
+  },
+  "noise_draft": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 420
+    }
+  },
+  "guider_draft": {
+    "class_type": "CFGGuider",
+    "inputs": {
+      "model": [
+        "model",
+        0
+      ],
+      "positive": [
+        "conditioning",
+        0
+      ],
+      "negative": [
+        "conditioning",
+        1
+      ],
+      "cfg": 1.0
+    }
+  },
+  "sampler_draft": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "noise_draft",
+        0
+      ],
+      "guider": [
+        "guider_draft",
+        0
+      ],
+      "sampler": [
+        "sampler_select_draft",
+        0
+      ],
+      "sigmas": [
+        "draft_scheduler",
+        0
+      ],
+      "latent_image": [
+        "concat_av_draft",
+        0
+      ]
+    }
+  },
+  "separate_draft": {
+    "class_type": "LTXVSeparateAVLatent",
+    "inputs": {
+      "av_latent": [
+        "sampler_draft",
+        0
+      ]
+    }
+  },
+  "crop_guides": {
+    "_comment": "Required by LTXVLatentUpsampler so the upscaler sees a clean video-only latent.",
+    "class_type": "LTXVCropGuides",
+    "inputs": {
+      "positive": [
+        "conditioning",
+        0
+      ],
+      "negative": [
+        "conditioning",
+        1
+      ],
+      "latent": [
+        "separate_draft",
+        0
+      ]
+    }
+  },
+  "upscaler_loader": {
+    "class_type": "LatentUpscaleModelLoader",
+    "inputs": {
+      "model_name": "ltx-2.3-spatial-upscaler-x2-1.1.safetensors"
+    }
+  },
+  "upsample": {
+    "_comment": "2x spatial latent upsampler: 960x540 -> 1920x1080 (diffusion-aware, not pixel upscale).",
+    "class_type": "LTXVLatentUpsampler",
+    "inputs": {
+      "samples": [
+        "crop_guides",
+        2
+      ],
+      "upscale_model": [
+        "upscaler_loader",
+        0
+      ],
+      "vae": [
+        "video_vae",
+        0
+      ]
+    }
+  },
+  "concat_av_refine": {
+    "class_type": "LTXVConcatAVLatent",
+    "inputs": {
+      "video_latent": [
+        "upsample",
+        0
+      ],
+      "audio_latent": [
+        "separate_draft",
+        1
+      ]
+    }
+  },
+  "refine_sigmas": {
+    "_comment": "Stage 2: late-noise refine sigmas (4 steps).",
+    "class_type": "ManualSigmas",
+    "inputs": {
+      "sigmas": "0.909375, 0.725, 0.421875, 0.0"
+    }
+  },
+  "sampler_select_refine": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler_ancestral"
+    }
+  },
+  "noise_refine": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 421
+    }
+  },
+  "guider_refine": {
+    "class_type": "CFGGuider",
+    "inputs": {
+      "model": [
+        "model",
+        0
+      ],
+      "positive": [
+        "crop_guides",
+        0
+      ],
+      "negative": [
+        "crop_guides",
+        1
+      ],
+      "cfg": 1.0
+    }
+  },
+  "sampler_refine": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "noise_refine",
+        0
+      ],
+      "guider": [
+        "guider_refine",
+        0
+      ],
+      "sampler": [
+        "sampler_select_refine",
+        0
+      ],
+      "sigmas": [
+        "refine_sigmas",
+        0
+      ],
+      "latent_image": [
+        "concat_av_refine",
+        0
+      ]
+    }
+  },
+  "separate_refine": {
+    "class_type": "LTXVSeparateAVLatent",
+    "inputs": {
+      "av_latent": [
+        "sampler_refine",
+        0
+      ]
+    }
+  },
+  "decode_video": {
+    "class_type": "VAEDecodeTiled",
+    "inputs": {
+      "samples": [
+        "separate_refine",
+        0
+      ],
+      "vae": [
+        "video_vae",
+        0
+      ],
+      "tile_size": 384,
+      "overlap": 64,
+      "temporal_size": 4096,
+      "temporal_overlap": 8
+    }
+  },
+  "decode_audio": {
+    "class_type": "LTXVAudioVAEDecode",
+    "inputs": {
+      "samples": [
+        "separate_refine",
+        1
+      ],
+      "audio_vae": [
+        "audio_vae",
+        0
+      ]
+    }
+  },
+  "combine": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "images": [
+        "decode_video",
+        0
+      ],
+      "audio": [
+        "decode_audio",
+        0
+      ],
+      "frame_rate": 24,
+      "loop_count": 0,
+      "filename_prefix": "cinema_t2v_hires",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 19,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true
+    }
+  },
+  "_comment": "Hi-res VANILLA baseline (no Cinema Worldbuilder nodes). Same two-stage 540p->1080p pipeline as cinema_ltx23_t2v_hires.json. Used by sweep/cinema_showcase.py to render the baseline cells for the baseline-vs-Cinema A/B in the demo reel. Edit positive.text directly; do not edit the Cinema nodes (they are intentionally absent)."
+}

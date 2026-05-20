@@ -1,0 +1,261 @@
+{
+  "model": "openai/clip-vit-base-patch32",
+  "n_pairs": 26,
+  "paired": {
+    "stats": {
+      "mean": 0.9668144262754,
+      "std": 0.07094582745144407,
+      "minv": 0.6891821622848511,
+      "maxv": 1.0000001192092896,
+      "n": 26
+    },
+    "items": [
+      {
+        "id": "A_M1_s42.mp4",
+        "sim": 0.9999998211860657
+      },
+      {
+        "id": "A_M1_s7.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "A_M2_s42.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "A_M2_s7.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "A_M3_s42.mp4",
+        "sim": 0.9999999403953552
+      },
+      {
+        "id": "A_M3_s7.mp4",
+        "sim": 0.9999998807907104
+      },
+      {
+        "id": "A_M4_s42.mp4",
+        "sim": 0.9999998807907104
+      },
+      {
+        "id": "A_M4_s7.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "A_M5_s42.mp4",
+        "sim": 0.9999999403953552
+      },
+      {
+        "id": "A_M5_s7.mp4",
+        "sim": 1.0000001192092896
+      },
+      {
+        "id": "B_alley_CAMERA_s42.mp4",
+        "sim": 0.6891821622848511
+      },
+      {
+        "id": "B_alley_CAMERA_s7.mp4",
+        "sim": 0.8121563792228699
+      },
+      {
+        "id": "B_alley_FULL_s42.mp4",
+        "sim": 0.9404035210609436
+      },
+      {
+        "id": "B_alley_FULL_s7.mp4",
+        "sim": 0.9343497157096863
+      },
+      {
+        "id": "B_alley_PROSE_s42.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "B_alley_PROSE_s7.mp4",
+        "sim": 1.0000001192092896
+      },
+      {
+        "id": "B_bridge_CAMERA_s42.mp4",
+        "sim": 0.9296721816062927
+      },
+      {
+        "id": "B_bridge_CAMERA_s7.mp4",
+        "sim": 0.9308233857154846
+      },
+      {
+        "id": "B_bridge_FULL_s42.mp4",
+        "sim": 0.945897102355957
+      },
+      {
+        "id": "B_bridge_FULL_s7.mp4",
+        "sim": 0.9546908736228943
+      },
+      {
+        "id": "B_bridge_PROSE_s42.mp4",
+        "sim": 1.0000001192092896
+      },
+      {
+        "id": "B_bridge_PROSE_s7.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "C_bridge_s42.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "C_bridge_s7.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "C_serum_s42.mp4",
+        "sim": 1.0
+      },
+      {
+        "id": "C_serum_s7.mp4",
+        "sim": 0.9999999403953552
+      }
+    ]
+  },
+  "control": {
+    "stats": {
+      "mean": 0.6988382683350489,
+      "std": 0.07590314365929504,
+      "minv": 0.6000141501426697,
+      "maxv": 0.9095247387886047,
+      "n": 26
+    },
+    "items": [
+      {
+        "id": "A_M1_s42.mp4",
+        "peer": "B_bridge_PROSE_s7.mp4",
+        "sim": 0.677869975566864
+      },
+      {
+        "id": "A_M1_s7.mp4",
+        "peer": "A_M3_s42.mp4",
+        "sim": 0.7663194537162781
+      },
+      {
+        "id": "A_M2_s42.mp4",
+        "peer": "A_M1_s42.mp4",
+        "sim": 0.6647869348526001
+      },
+      {
+        "id": "A_M2_s7.mp4",
+        "peer": "C_serum_s42.mp4",
+        "sim": 0.6000141501426697
+      },
+      {
+        "id": "A_M3_s42.mp4",
+        "peer": "A_M5_s7.mp4",
+        "sim": 0.750604510307312
+      },
+      {
+        "id": "A_M3_s7.mp4",
+        "peer": "A_M5_s42.mp4",
+        "sim": 0.767454206943512
+      },
+      {
+        "id": "A_M4_s42.mp4",
+        "peer": "A_M5_s42.mp4",
+        "sim": 0.6527619361877441
+      },
+      {
+        "id": "A_M4_s7.mp4",
+        "peer": "A_M3_s42.mp4",
+        "sim": 0.6648881435394287
+      },
+      {
+        "id": "A_M5_s42.mp4",
+        "peer": "C_serum_s42.mp4",
+        "sim": 0.6377462148666382
+      },
+      {
+        "id": "A_M5_s7.mp4",
+        "peer": "A_M2_s7.mp4",
+        "sim": 0.6382937431335449
+      },
+      {
+        "id": "B_alley_CAMERA_s42.mp4",
+        "peer": "C_bridge_s42.mp4",
+        "sim": 0.6474964022636414
+      },
+      {
+        "id": "B_alley_CAMERA_s7.mp4",
+        "peer": "C_serum_s42.mp4",
+        "sim": 0.6748495697975159
+      },
+      {
+        "id": "B_alley_FULL_s42.mp4",
+        "peer": "B_bridge_FULL_s42.mp4",
+        "sim": 0.7838417291641235
+      },
+      {
+        "id": "B_alley_FULL_s7.mp4",
+        "peer": "A_M2_s42.mp4",
+        "sim": 0.6635787487030029
+      },
+      {
+        "id": "B_alley_PROSE_s42.mp4",
+        "peer": "B_bridge_FULL_s7.mp4",
+        "sim": 0.7581146955490112
+      },
+      {
+        "id": "B_alley_PROSE_s7.mp4",
+        "peer": "B_alley_FULL_s7.mp4",
+        "sim": 0.9095247387886047
+      },
+      {
+        "id": "B_bridge_CAMERA_s42.mp4",
+        "peer": "A_M1_s7.mp4",
+        "sim": 0.6561942100524902
+      },
+      {
+        "id": "B_bridge_CAMERA_s7.mp4",
+        "peer": "A_M1_s42.mp4",
+        "sim": 0.6607425808906555
+      },
+      {
+        "id": "B_bridge_FULL_s42.mp4",
+        "peer": "A_M2_s42.mp4",
+        "sim": 0.649666428565979
+      },
+      {
+        "id": "B_bridge_FULL_s7.mp4",
+        "peer": "A_M4_s42.mp4",
+        "sim": 0.6515794992446899
+      },
+      {
+        "id": "B_bridge_PROSE_s42.mp4",
+        "peer": "A_M4_s7.mp4",
+        "sim": 0.6130450367927551
+      },
+      {
+        "id": "B_bridge_PROSE_s7.mp4",
+        "peer": "B_bridge_CAMERA_s42.mp4",
+        "sim": 0.8008646965026855
+      },
+      {
+        "id": "C_bridge_s42.mp4",
+        "peer": "B_bridge_FULL_s7.mp4",
+        "sim": 0.8256886005401611
+      },
+      {
+        "id": "C_bridge_s7.mp4",
+        "peer": "A_M1_s42.mp4",
+        "sim": 0.7493550777435303
+      },
+      {
+        "id": "C_serum_s42.mp4",
+        "peer": "B_bridge_CAMERA_s7.mp4",
+        "sim": 0.6822184920310974
+      },
+      {
+        "id": "C_serum_s7.mp4",
+        "peer": "A_M4_s42.mp4",
+        "sim": 0.6222952008247375
+      }
+    ]
+  },
+  "interpretation": "paired = same-scene v1-jargon vs v2-intent (the comparison we care about). control = same v1 frame paired with v2 frame from a randomly chosen different scene. Higher paired mean and lower control mean = v1/v2 are visually closer to each other than they are to random other scenes, supporting the claim that the grammar change is below the model's prompt-sensitivity threshold."
+}
