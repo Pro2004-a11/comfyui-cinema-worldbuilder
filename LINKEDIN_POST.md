@@ -29,7 +29,7 @@ The code, the sweep matrix, the side-by-side reels, the per-clip CLIP-similarity
 
 If anyone from the Lightricks team is reading: love this model. The three doc notes above would help new users land cleanly.
 
-🔗 Repo: github.com/[your-username]/comfyui-cinema-worldbuilder
+🔗 Repo: github.com/Pro2004-a11/comfyui-cinema-worldbuilder
 📄 Full writeup: `FINDINGS_FOR_LTX.md` in the repo
 
 #LTXVideo #ComfyUI #AIVideo #DiffusionModels #TechnicalArtist #GenerativeVideo
@@ -55,7 +55,7 @@ If the current opener doesn't grab, try one of these:
 
 ## What to tweak before posting
 
-- [ ] Replace `[your-username]` with the actual GitHub handle / org
+- [ ] Replace `Pro2004-a11` with the actual GitHub handle / org
 - [ ] Decide whether to `@`-tag `@Lightricks` (raises visibility but can read as opportunistic — your call)
 - [ ] Add a 1-2 line bio at the bottom if LinkedIn doesn't auto-pull it
 - [ ] Pick the opener — current vs one of the four alts
