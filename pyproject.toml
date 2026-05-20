@@ -13,5 +13,6 @@ PublisherId = "yosir"
 DisplayName = "Cinema Worldbuilder"
 
 [tool.pytest.ini_options]
-addopts = "--import-mode=importlib --rootdir=."
+pythonpath = ["."]
+addopts = "--import-mode=importlib"
 testpaths = ["tests"]
