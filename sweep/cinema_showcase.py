@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
-"""Cinema Worldbuilder DEMO SHOWCASE — 3-act reel for LTX team pitch.
+"""Cinema Worldbuilder PARAM-SENSITIVITY DEMO.
 
-Acts:
-  Intro title              "Cinema Worldbuilder — what we learned about LTX 2.3"
-  ACT 1: baseline vs Cinema (2 scenes, side-by-side hi-res A/B)
-  Metrics card             "-47% prompt length, no quality loss; equipment jargon ignored"
-  ACT 2: camera mode range (2 scene grids, 5 modes each in 2x3 layout)
-  Outro                    "comfyui-cinema-worldbuilder v0.2.0"
+Same scene, varied Cinema-node parameters. Focuses on what the nodes DO --
+how the camera mode parameter alone reshapes the scene. No baseline-vs-cinema
+comparison; just the param-driven variation.
 
-Renders 12 hi-res clips (2 scenes x [1 baseline + 5 modes]) at 1920x1024
-through the two-stage upscale-refine pipeline. Reuses existing showcase
-output where present.
+Reel structure:
+  Intro title         "Cinema Worldbuilder -- camera-mode parameter sensitivity"
+  Scene 1 title       scene name
+  Scene 1 grid        5-mode 2x3 layout
+  Scene 2 title       scene name
+  Scene 2 grid        5-mode 2x3 layout
+  Outro               "comfyui-cinema-worldbuilder v0.2.0"
+
+Renders 10 hi-res clips (2 scenes x 5 modes) at 1920x1024 via the two-stage
+upscale-refine pipeline.
 
 Usage:
   python cinema_showcase.py --check        # validate matrix, no render
   python cinema_showcase.py                # submit needed clips, build the reel
+  python cinema_showcase.py --force        # re-render even if mp4 exists on disk
   python cinema_showcase.py --compose-only # skip rendering, rebuild reel only
 """
 import sys, os, io, json, time, subprocess, copy, datetime
@@ -35,7 +40,7 @@ CINEMA_WF    = os.path.join(PACK, "example_workflows", "cinema_ltx23_t2v_hires.j
 BASELINE_WF  = os.path.join(PACK, "example_workflows", "baseline_ltx23_t2v_hires.json")
 FONT_REG     = "C:/Windows/Fonts/consola.ttf"
 FONT_BOLD    = "C:/Windows/Fonts/consolab.ttf"
-SEED         = 42
+SEED         = 1337  # fresh roll: SEED=42 produced visibly off M2 outputs in the previous pass
 
 # --- scenes ------------------------------------------------------------------
 SCENES = {
@@ -108,29 +113,27 @@ def build_baseline(base, scene_key, seed):
     return wf
 
 def jobs(only_missing=False):
-    """All jobs needed for the reel; optionally skip ones whose mp4 exists."""
+    """All jobs for the reel: 2 scenes x 5 modes."""
     out = []
     for scene_key in SCENES:
-        # baseline
-        rid = f"{scene_key}_BASELINE"
-        out.append(dict(id=rid, scene=scene_key, kind="baseline",
-                        label="BASELINE  no cinema nodes"))
-        # cinema modes
         for mode, lens in MODES:
             short_mode = mode.split(" - ")[0]
             out.append(dict(id=f"{scene_key}_{short_mode}",
                             scene=scene_key, kind="cinema", mode=mode, lens=lens,
-                            label=f"CINEMA  {short_mode}  {mode.split(' - ')[1]}  |  {lens}mm"))
+                            label=f"{short_mode}  {mode.split(' - ')[1]}  |  {lens}mm"))
     if only_missing:
         out = [j for j in out if not _find_raw_mp4(j["id"])]
     return out
 
 def _find_raw_mp4(rid):
-    """Locate an existing showcase mp4 by id (with or without -audio suffix)."""
-    for stem in (f"{rid}_00001-audio.mp4", f"{rid}_00001.mp4"):
-        p = os.path.join(OUT_ROOT, "showcase", stem)
-        if os.path.exists(p):
-            return p
+    """Locate an existing showcase mp4 by id, any save-counter suffix.
+    Prefers -audio.mp4 (video+audio) over .mp4 (video-only). Prefers highest counter."""
+    import glob
+    audio = sorted(glob.glob(os.path.join(OUT_ROOT, "showcase", f"{rid}_*-audio.mp4")))
+    if audio: return audio[-1]
+    plain = sorted(glob.glob(os.path.join(OUT_ROOT, "showcase", f"{rid}_*.mp4")))
+    plain = [p for p in plain if "-audio" not in p]
+    if plain: return plain[-1]
     return None
 
 # --- ffmpeg helpers ----------------------------------------------------------
@@ -320,54 +323,20 @@ def compose_all():
 
     intro = os.path.join(TITLE_DIR, "00_intro.mp4")
     make_title_card("Cinema Worldbuilder",
-                    "what we learned about LTX 2.3",
+                    "camera-mode parameter sensitivity",
                     intro, duration=2.5,
-                    sub2="ComfyUI custom nodes for LTX video")
+                    sub2="same scene, five camera modes")
     parts.append(intro)
 
-    # ===== ACT 1: BASELINE vs CINEMA A/B =====
-    act1_title = os.path.join(TITLE_DIR, "10_act1_title.mp4")
-    make_title_card("ACT 1   what the pack adds",
-                    "same model, same scene, prompt-only A/B",
-                    act1_title, duration=2.5)
-    parts.append(act1_title)
-
-    # 4 A/B pairs total: each scene shown against 2 different Cinema modes,
-    # using the SAME baseline both times (so the prompt-only delta is the variable).
-    act1_pairs = [
-        ("alley", "M1", "M1 Narrative", "55mm"),
-        ("alley", "M3", "M3 Action",    "40mm"),
-        ("gym",   "M1", "M1 Narrative", "55mm"),
-        ("gym",   "M5", "M5 Atmospheric","35mm"),
-    ]
-    for scene_key, short_mode, mode_label, lens_label in act1_pairs:
-        baseline_raw = _find_raw_mp4(f"{scene_key}_BASELINE")
-        cinema_raw   = _find_raw_mp4(f"{scene_key}_{short_mode}")
-        if not (baseline_raw and cinema_raw):
-            print(f"  WARN act1 missing {scene_key}/{short_mode}", flush=True)
-            continue
-        ab = os.path.join(AB_DIR, f"act1_{scene_key}_{short_mode}_ab.mp4")
-        hstack_ab(baseline_raw, cinema_raw, ab,
-                  "BASELINE   no cinema nodes",
-                  f"CINEMA   {mode_label}   {lens_label}",
-                  loop=2)
-        parts.append(ab)
-
-    # ===== METRICS CARD =====
-    stats = prompt_stats()
-    print(f"[metrics] {stats}", flush=True)
-    metrics = os.path.join(TITLE_DIR, "20_metrics.mp4")
-    make_metrics_card(stats, metrics, duration=4.5)
-    parts.append(metrics)
-
-    # ===== ACT 2: CAMERA MODE RANGE =====
-    act2_title = os.path.join(TITLE_DIR, "30_act2_title.mp4")
-    make_title_card("ACT 2   camera mode range",
-                    "five modes graded over one scene",
-                    act2_title, duration=2.5)
-    parts.append(act2_title)
-
     for i, (scene_key, sc) in enumerate(SCENES.items(), 1):
+        # Per-scene title card
+        scene_title = os.path.join(TITLE_DIR, f"{10*i:02d}_scene_{scene_key}.mp4")
+        make_title_card(sc["title"],
+                        f"scene {i} of {len(SCENES)} -- five camera modes over one scene",
+                        scene_title, duration=2.5,
+                        sub2=f"static_description: {sc['static'][:90]}...")
+        parts.append(scene_title)
+
         cells = []
         for mode, lens in MODES:
             short_mode = mode.split(" - ")[0]
@@ -395,51 +364,40 @@ def compose_all():
 
     concat_reel(parts, REEL_OUT)
     print(f"[showcase] REEL: {REEL_OUT}", flush=True)
-    return stats
 
 # --- main --------------------------------------------------------------------
 def main():
     check        = "--check"        in sys.argv
     compose_only = "--compose-only" in sys.argv
+    force        = "--force"        in sys.argv
     for d in (SHOW_DIR, RAW_DIR, GRID_DIR, TITLE_DIR, AB_DIR):
         os.makedirs(d, exist_ok=True)
 
     if compose_only:
         compose_all(); return
 
-    cinema_base   = json.load(io.open(CINEMA_WF,   encoding="utf-8"))
-    baseline_base = json.load(io.open(BASELINE_WF, encoding="utf-8"))
-    all_js = jobs(only_missing=False)
-    missing = jobs(only_missing=True)
-    print(f"[showcase] {len(all_js)} total ({len(SCENES)} scenes x [1 baseline + 5 modes])", flush=True)
+    cinema_base = json.load(io.open(CINEMA_WF, encoding="utf-8"))
+    all_js  = jobs(only_missing=False)
+    missing = all_js if force else jobs(only_missing=True)
+    print(f"[showcase] {len(all_js)} total ({len(SCENES)} scenes x 5 modes)", flush=True)
     print(f"[showcase] {len(missing)} need rendering ({len(all_js)-len(missing)} reused from disk)", flush=True)
+    if force:
+        print(f"[showcase] --force: ignoring on-disk reuse, re-rendering all", flush=True)
 
     if check:
         for j in all_js:
-            if j["kind"] == "baseline":
-                wf = build_baseline(baseline_base, j["scene"], SEED)
-            else:
-                wf = build_cinema(cinema_base, j["scene"], j["mode"], j["lens"], SEED)
+            wf = build_cinema(cinema_base, j["scene"], j["mode"], j["lens"], SEED)
             json.dumps(wf)
-            tag = "REUSE" if _find_raw_mp4(j["id"]) else "QUEUE"
+            tag = "FORCE" if force else ("REUSE" if _find_raw_mp4(j["id"]) else "QUEUE")
             print(f"  {tag:5}  {j['id']:22}  ({len(wf)} nodes)  {j['label']}", flush=True)
-        # Show the prompt metric too
-        try:
-            import cinema_grammar  # noqa: F401
-            print(f"[metrics] {prompt_stats()}", flush=True)
-        except Exception as e:
-            print(f"[metrics] WARN failed to compute: {e}", flush=True)
         print("[showcase] --check complete, nothing submitted.", flush=True)
         return
 
-    # submit only missing
+    # submit (only missing, unless --force)
     submitted = []
     for j in missing:
         try:
-            if j["kind"] == "baseline":
-                wf = build_baseline(baseline_base, j["scene"], SEED)
-            else:
-                wf = build_cinema(cinema_base, j["scene"], j["mode"], j["lens"], SEED)
+            wf = build_cinema(cinema_base, j["scene"], j["mode"], j["lens"], SEED)
             pid = cc.submit(wf)
             submitted.append((pid, j))
             print(f"[showcase] queued {j['id']}  ({pid})", flush=True)
