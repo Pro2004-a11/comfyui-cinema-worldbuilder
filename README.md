@@ -143,7 +143,6 @@ Outputs land in `sweep/results/`, `sweep/results_v2/`, and `sweep/results_ab/`. 
 ```
 comfyui-cinema-worldbuilder/
 ├── 📄 FINDINGS_FOR_LTX.md      # the writeup — empirical study of LTX 2.3
-├── 📄 LINKEDIN_POST.md          # social post draft for the findings
 ├── 🧩 cinema_grammar.py         # mode tables, camera blocks, prompt composer (pure functions, no ComfyUI import)
 ├── 🧩 nodes.py                  # the 3 io.ComfyNode adapters
 ├── 🧪 tests/                    # 20 pytest unit tests
