@@ -23,15 +23,13 @@ ready-to-run example workflows for t2v, i2v, v2v, and hi-res 1080p production.
 
 ## 🎥 Demo
 
-<div align="center">
+<p align="center">
+  <video src="https://github.com/Pro2004-a11/comfyui-cinema-worldbuilder/releases/download/v0.2.0/q2k_vs_fp8_full_reel.mp4" poster="assets/demo_poster.jpg" controls muted width="100%"></video>
+</p>
 
-https://github.com/Pro2004-a11/comfyui-cinema-worldbuilder/releases/download/v0.2.0/q2k_vs_fp8_full_reel.mp4
-
-[![Demo reel — click to play](assets/demo_poster.jpg)](https://github.com/Pro2004-a11/comfyui-cinema-worldbuilder/releases/download/v0.2.0/q2k_vs_fp8_full_reel.mp4)
-
-**[▶️ Watch the full A/B reel (1:47, 45 MB)](https://github.com/Pro2004-a11/comfyui-cinema-worldbuilder/releases/download/v0.2.0/q2k_vs_fp8_full_reel.mp4)**
-
-</div>
+<p align="center">
+  <em>▶ <strong><a href="https://github.com/Pro2004-a11/comfyui-cinema-worldbuilder/releases/download/v0.2.0/q2k_vs_fp8_full_reel.mp4">Open the A/B reel directly</a></strong> (1:47, 45 MB)</em>
+</p>
 
 > **Q2_K GGUF (left) vs FP8 dev + distill LoRA (right)** — same Cinema Worldbuilder prompts, two LTX 2.3 model variants. 2 scenes × 5 camera modes = 10 paired clips. The fp8 dev + distill LoRA chain matches the **Comfy-Org canonical template** and is the recommended production path on a 12 GB GPU.
 
